@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<thing:thing-descriptions bindingId="ebus"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:thing="https://openhab.org/schemas/thing-description/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/thing-description/v1.0.0 https://openhab.org/schemas/thing-description-1.0.0.xsd">
+
+	<!-- eBUS Bridge -->
+	<bridge-type id="bridge">
+		<label>eBUS Bridge</label>
+		<description>The eBUS bridge represents the eBus hardware interface.</description>
+
+		<channel-groups>
+			<channel-group typeId="metrics" id="metrics"></channel-group>
+		</channel-groups>
+
+		<properties>
+			<property name="vendor">Generic eBUS Interface</property>
+		</properties>
+
+		<config-description>
+
+			<parameter-group name="network">
+				<label>Network connection</label>
+				<description>Please configure network either serial, not both!</description>
+			</parameter-group>
+
+			<parameter-group name="serial">
+				<label>Serial connection</label>
+				<description>Please configure network either serial, not both!</description>
+			</parameter-group>
+
+			<parameter name="ipAddress" type="text" groupName="network">
+				<context>network_address</context>
+				<label>Network Address</label>
+				<description>Network address of the eBUS interface</description>
+				<required>false</required>
+			</parameter>
+
+			<parameter name="port" type="integer" groupName="network">
+				<label>Network Port</label>
+				<description>Port of the eBUS/ebusd interface</description>
+				<required>false</required>
+			</parameter>
+
+			<parameter name="networkDriver" type="text" groupName="network">
+				<label>Network Driver</label>
+				<context>network_address</context>
+				<description>
+					Network Driver
+				</description>
+				<options>
+					<option value="raw">Raw</option>
+					<option value="ebusd">ebusd</option>
+				</options>
+				<default>raw</default>
+			</parameter>
+
+			<parameter name="serialPort" type="text" groupName="serial">
+				<label>Serial Port</label>
+				<context>serial-port</context>
+				<description>
+					Serial port like COM1 or /dev/ttyUSB1 of the eBUS interface
+				</description>
+				<required>false</required>
+			</parameter>
+
+			<parameter name="serialPortDriver" type="text" groupName="serial">
+				<label>Serial Port Driver</label>
+				<context>serial-port</context>
+				<description>
+					Serial port driver
+				</description>
+				<options>
+					<option value="nrjavaserial">nrjavaserial (RXTX)</option>
+					<option value="jserialcomm">jSerialComm</option>
+				</options>
+				<default>nrjavaserial</default>
+			</parameter>
+
+			<parameter name="masterAddress" type="text">
+				<advanced>true</advanced>
+				<label>eBUS Master Address</label>
+				<description>Master address of this bridge as HEX</description>
+				<required>true</required>
+				<default>FF</default>
+			</parameter>
+
+			<parameter name="advancedLogging" type="boolean">
+				<advanced>true</advanced>
+				<label>Enable advanced logging</label>
+				<description>Enable advanced logging</description>
+				<default>false</default>
+			</parameter>
+
+		</config-description>
+	</bridge-type>
+
+	<channel-group-type id="metrics">
+
+		<label>eBUS Metrics</label>
+		<description>Different metric values</description>
+
+		<channels>
+			<channel typeId="metricsInteger" id="receivedTelegrams">
+				<label>Received telegrams</label>
+				<description>Successful received telegrams</description>
+			</channel>
+
+			<channel typeId="metricsInteger" id="failedTelegrams">
+				<label>Failed telegrams</label>
+				<description>Failed received telegrams</description>
+			</channel>
+
+			<channel typeId="metricsInteger" id="resolvedTelegrams">
+				<label>Resolved telegrams</label>
+				<description>Number of telegrams that where resolved by currenct configuration</description>
+			</channel>
+
+			<channel typeId="metricsInteger" id="unresolvedTelegrams">
+				<label>Unresolved telegrams</label>
+				<description>Number of unresolved telegrams</description>
+			</channel>
+
+			<channel typeId="metricsFloat" id="failedRatio">
+				<label>Failed telegrams ratio</label>
+				<description>Failed telegram ration</description>
+			</channel>
+
+			<channel typeId="metricsFloat" id="unresolvedRatio">
+				<label>Unresolved telegrams ratio</label>
+				<description>Unresolved telegram ratio</description>
+			</channel>
+
+			<channel typeId="metricsInteger" id="sendReceiveRoundtripTime">
+				<label>Roundtrip time</label>
+				<description>Send/Receive roundtrip time in ms</description>
+			</channel>
+
+		</channels>
+
+	</channel-group-type>
+
+	<channel-type id="metricsInteger">
+		<item-type>Number</item-type>
+		<label>Metrics integer value</label>
+		<category>Metric</category>
+		<state readOnly="true" pattern="%d">
+		</state>
+		<config-description></config-description>
+	</channel-type>
+
+	<channel-type id="metricsFloat">
+		<item-type>Number</item-type>
+		<label>Metrics float value</label>
+		<category>Metric</category>
+		<state readOnly="true" pattern="%.1f%%">
+		</state>
+		<config-description></config-description>
+	</channel-type>
+
+</thing:thing-descriptions>

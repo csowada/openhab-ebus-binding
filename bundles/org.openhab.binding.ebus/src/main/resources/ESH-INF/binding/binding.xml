@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<binding:binding id="ebus" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:binding="https://openhab.org/schemas/binding/v1.0.0"
+	xsi:schemaLocation="https://openhab.org/schemas/binding/v1.0.0 https://openhab.org/schemas/binding-1.0.0.xsd">
+
+	<name>eBUS Binding</name>
+	<description>This is the binding for eBUS.</description>
+	<author>Christian Sowada</author>
+
+	<config-description>
+
+		<parameter name="configurationUrl" type="text">
+			<label>Configuration URL</label>
+			<description>Define a URL to load external configuration files. Ex. http://my.url/custom.json or
+				file:///etc/oh2/custom.json</description>
+		</parameter>
+
+		<parameter name="configurationUrl1" type="text">
+			<label>Configuration URL</label>
+			<description>Define a URL to load external configuration files. Ex. http://my.url/custom.json or
+				file:///etc/oh2/custom.json</description>
+		</parameter>
+
+		<parameter name="configurationUrl2" type="text">
+			<label>Configuration URL</label>
+			<description>Define a URL to load external configuration files. Ex. http://my.url/custom.json or
+				file:///etc/oh2/custom.json</description>
+		</parameter>
+
+		<parameter name="configurationBundleUrl" type="text">
+			<label>Configuration Bundle URL</label>
+			<description>Define a URL to load external configuration bundles. http://my.url/index.json or
+				file:///etc/oh2/index.json</description>
+		</parameter>
+
+	</config-description>
+
+</binding:binding>
