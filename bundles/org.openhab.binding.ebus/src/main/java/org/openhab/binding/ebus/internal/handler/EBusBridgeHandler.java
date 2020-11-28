@@ -35,6 +35,7 @@ import org.openhab.binding.ebus.action.EBusActions;
 import org.openhab.binding.ebus.internal.EBusBindingConstants;
 import org.openhab.binding.ebus.internal.EBusBridgeHandlerConfiguration;
 import org.openhab.binding.ebus.internal.EBusHandlerFactory;
+import org.openhab.binding.ebus.internal.serial.EBusSerialBuildInSerialConnection;
 import org.openhab.binding.ebus.internal.services.EBusMetricsService;
 import org.openhab.binding.ebus.internal.things.IEBusTypeProvider;
 import org.openhab.binding.ebus.internal.utils.EBusAdvancedLogging;
@@ -175,7 +176,16 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
         }
 
         if (StringUtils.isNotEmpty(serialPort) && serialPort != null) {
-            clientBridge.setSerialConnection(serialPort, serialPortDriver);
+
+            if (serialPortDriver == null || serialPortDriver.equals("")
+                    || serialPortDriver.equals(EBusBindingConstants.DRIVER_BUILDIN)) {
+                // use openhab build in serial driver
+                EBusSerialBuildInSerialConnection connection = new EBusSerialBuildInSerialConnection(
+                        handlerFactory.getSerialPortManager(), serialPort);
+                clientBridge.setSerialConnection(connection);
+            } else {
+                clientBridge.setSerialConnection(serialPort, serialPortDriver);
+            }
         }
 
         if (masterAddress != null && !EBusUtils.isMasterAddress(masterAddress)) {

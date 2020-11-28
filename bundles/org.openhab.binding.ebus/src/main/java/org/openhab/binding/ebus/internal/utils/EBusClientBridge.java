@@ -107,6 +107,12 @@ public class EBusClientBridge {
         controller = new EBusLowLevelController(connection);
     }
 
+    public void setSerialConnection(IEBusConnection connection) {
+        // load the eBus core element
+        this.connection = connection;
+        controller = new EBusLowLevelController(connection);
+    }
+
     /**
      * @return
      */

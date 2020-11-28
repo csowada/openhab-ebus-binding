@@ -48,6 +48,7 @@ public class EBusBindingConstants {
     public static final String SERIAL_PORT_DRIVER = "serialPortDriver";
     public static final String ADVANCED_LOGGING = "advancedLogging";
 
+    public static final String DRIVER_BUILDIN = "buildin";
     public static final String DRIVER_NRJAVASERIAL = "nrjavaserial";
     public static final String DRIVER_JSERIALCOMM = "jserialcomm";
 

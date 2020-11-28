@@ -71,10 +71,11 @@
 					Serial port driver
 				</description>
 				<options>
+					<option value="buildin">openHAB build-in</option>
 					<option value="nrjavaserial">nrjavaserial (RXTX)</option>
 					<option value="jserialcomm">jSerialComm</option>
 				</options>
-				<default>nrjavaserial</default>
+				<default>buildin</default>
 			</parameter>
 
 			<parameter name="masterAddress" type="text">

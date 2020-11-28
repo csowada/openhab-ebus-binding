@@ -28,6 +28,7 @@ import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
+import org.eclipse.smarthome.io.transport.serial.SerialPortManager;
 import org.openhab.binding.ebus.internal.handler.EBusBridgeHandler;
 import org.openhab.binding.ebus.internal.handler.EBusHandler;
 import org.openhab.binding.ebus.internal.services.EBusDiscoveryService;
@@ -61,9 +62,24 @@ public class EBusHandlerFactory extends BaseThingHandlerFactory {
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
     private volatile IEBusTypeProvider typeProvider;
 
+    private @NonNullByDefault({}) SerialPortManager serialPortManager;
+
     @Nullable
     public IEBusTypeProvider getEBusTypeProvider() {
         return typeProvider;
+    }
+
+    @Reference
+    protected void setSerialPortManager(final SerialPortManager serialPortManager) {
+        this.serialPortManager = serialPortManager;
+    }
+
+    protected void unsetSerialPortManager(final SerialPortManager serialPortManager) {
+        this.serialPortManager = null;
+    }
+
+    public SerialPortManager getSerialPortManager() {
+        return serialPortManager;
     }
 
     @Override
