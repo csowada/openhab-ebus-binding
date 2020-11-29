@@ -14,8 +14,8 @@ package org.openhab.binding.ebus.internal;
 
 import java.net.URI;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.openhab.binding.ebus.internal.utils.EBusBindingUtils;
 
 /**
  * The {@link EBusBindingConstants} class defines common constants, which are
@@ -23,6 +23,7 @@ import org.openhab.binding.ebus.internal.utils.EBusBindingUtils;
  *
  * @author Christian Sowada - Initial contribution
  */
+@NonNullByDefault
 public class EBusBindingConstants {
 
     public static final String BINDING_ID = "ebus";
@@ -80,12 +81,11 @@ public class EBusBindingConstants {
     public static final String SEND_RECEIVE_ROUNDTRIP_TIME = "sendReceiveRoundtripTime";
 
     // configuration uris
-    public static final URI CONFIG_DESCRIPTION_URI_NODE = EBusBindingUtils
-            .getURI("thing-type:" + BINDING_ID + ":nodeConfig");
-    public static final URI CONFIG_DESCRIPTION_URI_POLLING_CHANNEL = EBusBindingUtils
-            .getURI("channel-type:" + BINDING_ID + ":pollingChannel");
-    public static final URI CONFIG_DESCRIPTION_URI_NULL_CHANNEL = EBusBindingUtils
-            .getURI("channel-type:" + BINDING_ID + ":nullChannel");
+    public static final URI CONFIG_DESCRIPTION_URI_NODE = URI.create("thing-type:" + BINDING_ID + ":nodeConfig");
+    public static final URI CONFIG_DESCRIPTION_URI_POLLING_CHANNEL = URI
+            .create("channel-type:" + BINDING_ID + ":pollingChannel");
+    public static final URI CONFIG_DESCRIPTION_URI_NULL_CHANNEL = URI
+            .create("channel-type:" + BINDING_ID + ":nullChannel");
 
     // item types
     public static final String ITEM_TYPE_NUMBER = "Number";

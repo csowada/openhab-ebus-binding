@@ -16,6 +16,8 @@ import java.io.IOException;
 import java.util.TooManyListenersException;
 
 import org.apache.commons.io.IOUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.io.transport.serial.PortInUseException;
 import org.eclipse.smarthome.io.transport.serial.SerialPort;
 import org.eclipse.smarthome.io.transport.serial.SerialPortEvent;
@@ -32,12 +34,13 @@ import de.csdev.ebus.core.connection.AbstractEBusConnection;
  * @author Christian Sowada - Initial contribution
  *
  */
+@NonNullByDefault
 public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
 
     private static final Logger logger = LoggerFactory.getLogger(EBusSerialBuildInSerialConnection.class);
 
     /** The serial object */
-    private SerialPort serialPort;
+    private @Nullable SerialPort serialPort;
 
     /** The serial port name */
     private String port;
@@ -54,6 +57,7 @@ public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
      *
      * @see de.csdev.ebus.core.connection.IEBusConnection#open()
      */
+    @SuppressWarnings("null")
     @Override
     public boolean open() throws IOException {
         try {
@@ -125,6 +129,7 @@ public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
         // run the serial.close in a new not-interrupted thread to
         // prevent an IllegalMonitorStateException error
         Thread shutdownThread = new Thread(new Runnable() {
+            @SuppressWarnings("null")
             @Override
             public void run() {
 
@@ -171,14 +176,6 @@ public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
     @Override
     public int readByte(boolean lowLatency) throws IOException {
         if (lowLatency) {
-
-            // while (true) {
-            // int read = inputStream.read();
-            // if (read != -1) {
-            // return read;
-            // }
-            // }
-
             return inputStream.read();
         } else {
             if (inputStream.available() > 0) {

@@ -14,23 +14,27 @@ package org.openhab.binding.ebus.internal;
 
 import java.math.BigDecimal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * The {@link EBusHandlerConfiguration} class contains fields mapping thing configuration parameters.
  *
  * @author Christian Sowada - Initial contribution
  */
+@NonNullByDefault
 public class EBusHandlerConfiguration {
 
     /**
      * Slave address of this node as HEX value
      */
-    public String slaveAddress;
+    public @Nullable String slaveAddress;
 
     /**
      * Master address of this node as HEX value. Usually does not have to be set. Calculated on the basis of the slave
      * address.
      */
-    public String masterAddress;
+    public @Nullable String masterAddress;
 
     /**
      * Accept telegrams for master address
@@ -40,17 +44,17 @@ public class EBusHandlerConfiguration {
     /**
      * Accept telegrams for slave address<
      */
-    public Boolean filterAcceptSlave = true;
+    public @Nullable Boolean filterAcceptSlave = true;
 
     /**
      * Accept broadcasts telegrams from master address
      */
-    public Boolean filterAcceptBroadcasts = true;
+    public @Nullable Boolean filterAcceptBroadcasts = true;
 
     /**
      * Set to poll all getter channels every n seconds.
      */
-    public BigDecimal polling;
+    public @Nullable BigDecimal polling;
 
     @Override
     public String toString() {

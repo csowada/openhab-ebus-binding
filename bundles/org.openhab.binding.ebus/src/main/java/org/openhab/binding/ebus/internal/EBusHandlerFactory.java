@@ -58,25 +58,24 @@ public class EBusHandlerFactory extends BaseThingHandlerFactory {
 
     private Map<ThingUID, @Nullable ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
-    @Nullable
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
-    private volatile IEBusTypeProvider typeProvider;
-
-    private @NonNullByDefault({}) SerialPortManager serialPortManager;
-
-    @Nullable
-    public IEBusTypeProvider getEBusTypeProvider() {
-        return typeProvider;
-    }
+    private @NonNullByDefault({}) IEBusTypeProvider typeProvider;
 
     @Reference
-    protected void setSerialPortManager(final SerialPortManager serialPortManager) {
-        this.serialPortManager = serialPortManager;
-    }
+    private @NonNullByDefault({}) SerialPortManager serialPortManager;
 
-    protected void unsetSerialPortManager(final SerialPortManager serialPortManager) {
-        this.serialPortManager = null;
-    }
+    // public IEBusTypeProvider getEBusTypeProvider() {
+    // return typeProvider;
+    // }
+
+    // @Reference
+    // protected void setSerialPortManager(final SerialPortManager serialPortManager) {
+    // this.serialPortManager = serialPortManager;
+    // }
+    //
+    // protected void unsetSerialPortManager(final SerialPortManager serialPortManager) {
+    // this.serialPortManager = null;
+    // }
 
     public SerialPortManager getSerialPortManager() {
         return serialPortManager;

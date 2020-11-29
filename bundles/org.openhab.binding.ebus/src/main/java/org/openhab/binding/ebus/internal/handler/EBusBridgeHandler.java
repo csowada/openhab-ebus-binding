@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Bridge;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -57,6 +58,7 @@ import de.csdev.ebus.utils.EBusUtils;
  *
  * @author Christian Sowada - Initial contribution
  */
+@NonNullByDefault
 public class EBusBridgeHandler extends EBusBaseBridgeHandler
         implements IEBusParserListener, IEBusConnectorEventListener {
 
@@ -67,27 +69,32 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
 
     private EBusClientBridge clientBridge;
 
-    @NonNull
     private EBusHandlerFactory handlerFactory;
 
-    private EBusAdvancedLogging advanceLogger;
+    private @Nullable EBusAdvancedLogging advanceLogger;
 
-    private EBusBridgeHandlerConfiguration configuration;
-
-    private EBusMetricsService metricsService;
+    private EBusMetricsService metricsService = new EBusMetricsService(this);
 
     @Override
     public Collection<@NonNull Class<? extends @NonNull ThingHandlerService>> getServices() {
         return Collections.singleton(EBusActions.class);
     }
 
-    public EBusBridgeHandler(@NonNull Bridge bridge, IEBusTypeProvider typeProvider,
-            EBusHandlerFactory handlerFactory) {
+    public EBusBridgeHandler(Bridge bridge, IEBusTypeProvider typeProvider, EBusHandlerFactory handlerFactory) {
 
         super(bridge);
 
         // reference configuration
         this.handlerFactory = handlerFactory;
+
+        // initialize the ebus client wrapper
+        EBusCommandRegistry registry = typeProvider.getCommandRegistry();
+
+        if (registry == null) {
+            throw new RuntimeException("Command Registry not available!");
+        }
+
+        clientBridge = new EBusClientBridge(registry);
     }
 
     /**
@@ -111,21 +118,8 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
 
         logger.trace("EBusBridgeHandler.initialize()");
 
-        IEBusTypeProvider typeProvider = this.handlerFactory.getEBusTypeProvider();
-        configuration = getConfigAs(EBusBridgeHandlerConfiguration.class);
-
-        if (typeProvider == null) {
-            throw new RuntimeException("Type provider not available!");
-        }
-
-        // initialize the ebus client wrapper
-        EBusCommandRegistry registry = typeProvider.getCommandRegistry();
-
-        if (registry == null) {
-            throw new RuntimeException("Command Registry not available!");
-        }
-
-        clientBridge = new EBusClientBridge(registry);
+        // IEBusTypeProvider typeProvider = this.handlerFactory.getEBusTypeProvider();
+        EBusBridgeHandlerConfiguration configuration = getConfigAs(EBusBridgeHandlerConfiguration.class);
 
         // add the discovery service
         handlerFactory.disposeDiscoveryService(this);
@@ -152,7 +146,7 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
             serialPort = configuration.serialPort;
             serialPortDriver = configuration.serialPortDriver;
 
-            if (configuration.advancedLogging.equals(Boolean.TRUE)) {
+            if (configuration.advancedLogging != null && configuration.advancedLogging.equals(Boolean.TRUE)) {
                 logger.warn("Enable advanced logging for eBUS commands!");
                 advanceLogger = new EBusAdvancedLogging();
             }
@@ -168,7 +162,7 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
         if (StringUtils.isNotEmpty(ipAddress) && port != null) {
 
             // use ebusd as high level driver
-            if (networkDriver.equals(DRIVER_EBUSD) && ipAddress != null) {
+            if (networkDriver != null && networkDriver.equals(DRIVER_EBUSD) && ipAddress != null) {
                 clientBridge.setEbusdConnection(ipAddress, port.intValue());
             } else if (ipAddress != null) {
                 clientBridge.setTCPConnection(ipAddress, port.intValue());
@@ -225,15 +219,13 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
         clientBridge.startClient();
     }
 
+    @SuppressWarnings("null")
     @Override
     public void dispose() {
 
         logger.trace("EBusBridgeHandler.dispose()");
 
-        if (metricsService != null) {
-            metricsService.deactivate();
-            metricsService = null;
-        }
+        metricsService.deactivate();
 
         if (advanceLogger != null) {
             clientBridge.getClient().removeEBusParserListener(advanceLogger);
@@ -244,13 +236,8 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
         // remove discovery service
         handlerFactory.disposeDiscoveryService(this);
 
-        if (clientBridge != null) {
-
-            clientBridge.stopClient();
-            clientBridge.getClient().dispose();
-
-            clientBridge = null;
-        }
+        clientBridge.stopClient();
+        clientBridge.getClient().dispose();
     }
 
     /*
@@ -261,10 +248,15 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
      * java.util.Map, byte[], java.lang.Integer)
      */
     @Override
-    public void onTelegramResolved(IEBusCommandMethod commandChannel, Map<String, Object> result, byte[] receivedData,
-            Integer sendQueueId) {
+    @NonNullByDefault({})
+    public void onTelegramResolved(@Nullable IEBusCommandMethod commandChannel, Map<String, Object> result,
+            byte @Nullable [] receivedData, @Nullable Integer sendQueueId) {
 
         boolean noHandler = true;
+
+        if (commandChannel == null || receivedData == null) {
+            return;
+        }
 
         String source = EBusUtils.toHexDumpString(receivedData[0]);
         String destination = EBusUtils.toHexDumpString(receivedData[1]);
@@ -307,8 +299,8 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
      * java.lang.Integer)
      */
     @Override
-    public void onTelegramException(EBusDataException exception, Integer sendQueueId) {
-        logger.debug("eBUS telegram error; {}", exception.getLocalizedMessage());
+    public void onTelegramException(@Nullable EBusDataException e, @Nullable Integer sendQueueId) {
+        logger.debug("eBUS telegram error; {}", e != null ? e.getLocalizedMessage() : null);
     }
 
     /*
@@ -317,11 +309,11 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
      * @see de.csdev.ebus.core.IEBusConnectorEventListener#onConnectionException(java.lang.Exception)
      */
     @Override
-    public void onConnectionException(Exception e) {
+    public void onConnectionException(@Nullable Exception e) {
 
         metricsService.deactivate();
 
-        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e.getMessage());
+        updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.COMMUNICATION_ERROR, e != null ? e.getMessage() : null);
     }
 
     /*
@@ -342,7 +334,7 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
      * @see de.csdev.ebus.core.IEBusConnectorEventListener#onTelegramReceived(byte[], java.lang.Integer)
      */
     @Override
-    public void onTelegramReceived(byte[] receivedData, Integer sendQueueId) {
+    public void onTelegramReceived(byte @Nullable [] receivedData, @Nullable Integer sendQueueId) {
         Bridge bridge = getThing();
 
         if (bridge.getStatus() != ThingStatus.ONLINE) {
@@ -362,8 +354,8 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
      * IEBusCommandMethod, byte[], java.lang.Integer, java.lang.String)
      */
     @Override
-    public void onTelegramResolveFailed(IEBusCommandMethod commandChannel, byte[] receivedData, Integer sendQueueId,
-            String exceptionMessage) {
+    public void onTelegramResolveFailed(@Nullable IEBusCommandMethod commandChannel, byte @Nullable [] receivedData,
+            @Nullable Integer sendQueueId, @Nullable String exceptionMessage) {
 
         if (commandChannel == null) {
             if (logger.isTraceEnabled()) {
@@ -377,7 +369,7 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
     }
 
     @Override
-    public void onConnectionStatusChanged(ConnectionStatus status) {
+    public void onConnectionStatusChanged(@Nullable ConnectionStatus status) {
 
         Bridge bridge = getThing();
         ThingStatus thingStatus = bridge.getStatus();

@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
@@ -82,6 +83,7 @@ import de.csdev.ebus.configuration.EBusConfigurationReaderExt;
  *
  * @author Christian Sowada - Initial contribution
  */
+@NonNullByDefault
 @Component(service = { IEBusTypeProvider.class, ThingTypeProvider.class, ChannelTypeProvider.class,
         ChannelGroupTypeProvider.class }, configurationPid = BINDING_PID, immediate = true)
 public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusTypeProvider {
@@ -92,7 +94,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
     private EBusCommandRegistry commandRegistry;
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL)
-    private ConfigurationAdmin configurationAdmin;
+    private @Nullable ConfigurationAdmin configurationAdmin;
 
     /**
      * Activating this component - called from DS.
@@ -469,6 +471,10 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
     @SuppressWarnings("null")
     private void updateConfiguration(@Nullable Dictionary<String, ?> properties) {
 
+        if (properties == null) {
+            return;
+        }
+
         logger.trace("Update eBUS configuration ...");
 
         EBusBindingConfiguration configuration = getConfiguration(properties);
@@ -486,29 +492,28 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
 
             if (configuration.configurationUrl != null) {
                 logger.info("Load custom configuration file '{}' ...", configuration.configurationUrl);
-                if (commandRegistry != null) {
-
+                if (commandRegistry != null && configuration.configurationUrl != null) {
                     loadConfigurationByUrl(commandRegistry, configuration.configurationUrl);
                 }
             }
 
             if (configuration.configurationUrl1 != null) {
                 logger.info("Load custom configuration file '{}' ...", configuration.configurationUrl1);
-                if (commandRegistry != null) {
+                if (commandRegistry != null && configuration.configurationUrl1 != null) {
                     loadConfigurationByUrl(commandRegistry, configuration.configurationUrl1);
                 }
             }
 
             if (configuration.configurationUrl2 != null) {
                 logger.info("Load custom configuration file '{}' ...", configuration.configurationUrl2);
-                if (commandRegistry != null) {
+                if (commandRegistry != null && configuration.configurationUrl2 != null) {
                     loadConfigurationByUrl(commandRegistry, configuration.configurationUrl2);
                 }
             }
 
             if (configuration.configurationBundleUrl != null) {
                 logger.info("Load custom configuration bundle '{}' ...", configuration.configurationBundleUrl);
-                if (commandRegistry != null) {
+                if (commandRegistry != null && configuration.configurationBundleUrl != null) {
                     loadConfigurationBundleByUrl(commandRegistry, configuration.configurationBundleUrl);
                 }
             }

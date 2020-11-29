@@ -12,12 +12,15 @@
  */
 package org.openhab.binding.ebus.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 import de.csdev.ebus.core.EBusVersion;
 
 /**
  *
  * @author Christian Sowada - Initial contribution
  */
+@NonNullByDefault
 public class EbusBindingVersion extends EBusVersion {
     public static String getVersion() {
         return getVersion(EbusBindingVersion.class);

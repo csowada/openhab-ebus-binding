@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.discovery.AbstractDiscoveryService;
 import org.eclipse.smarthome.config.discovery.DiscoveryResult;
@@ -49,7 +50,7 @@ import de.csdev.ebus.utils.EBusUtils;
  *
  * @author Christian Sowada - Initial contribution
  */
-// @NonNullByDefault
+@NonNullByDefault
 public class EBusDiscoveryService extends AbstractDiscoveryService implements IEBusDeviceTableListener {
 
     private final Logger logger = LoggerFactory.getLogger(EBusDiscoveryService.class);
@@ -87,7 +88,7 @@ public class EBusDiscoveryService extends AbstractDiscoveryService implements IE
 
     @Override
     @Activate
-    public void activate(Map<String, @Nullable Object> configProperties) {
+    public void activate(@Nullable Map<String, @Nullable Object> configProperties) {
         super.activate(configProperties);
         logger.debug("Start eBUS discovery service ...");
 
@@ -155,9 +156,9 @@ public class EBusDiscoveryService extends AbstractDiscoveryService implements IE
     }
 
     @Override
-    public void onEBusDeviceUpdate(TYPE type, IEBusDevice device) {
+    public void onEBusDeviceUpdate(@Nullable TYPE type, @Nullable IEBusDevice device) {
 
-        if (!type.equals(TYPE.UPDATE_ACTIVITY)) {
+        if (device != null && type != null && !type.equals(TYPE.UPDATE_ACTIVITY)) {
 
             if (!disableDiscovery) {
 
@@ -193,11 +194,6 @@ public class EBusDiscoveryService extends AbstractDiscoveryService implements IE
      * @param device
      */
     private void updateInitializedThings(IEBusDevice device) {
-
-        if (bridgeHandle == null) {
-            logger.debug("No things available ...");
-            return;
-        }
 
         String deviceSlaveAddress = EBusUtils.toHexDumpString(device.getSlaveAddress());
 

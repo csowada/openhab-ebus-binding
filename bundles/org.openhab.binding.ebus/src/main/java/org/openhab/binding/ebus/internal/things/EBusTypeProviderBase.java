@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
@@ -32,6 +35,7 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
  *
  * @author Christian Sowada - Initial contribution
  */
+@NonNullByDefault
 public abstract class EBusTypeProviderBase implements IEBusTypeProvider {
 
     protected final List<String> supportedBridgeTypeUIDs = Arrays.asList(THING_TYPE_EBUS_BRIDGE.getAsString());
@@ -43,32 +47,33 @@ public abstract class EBusTypeProviderBase implements IEBusTypeProvider {
     protected Map<ThingTypeUID, ThingType> thingTypes = new HashMap<>();
 
     @Override
-    public ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID, Locale locale) {
+    public @NonNull ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID,
+            @Nullable Locale locale) {
         return channelGroupTypes.get(channelGroupTypeUID);
     }
 
     @Override
-    public Collection<ChannelGroupType> getChannelGroupTypes(Locale locale) {
+    public Collection<ChannelGroupType> getChannelGroupTypes(@Nullable Locale locale) {
         return channelGroupTypes.values();
     }
 
     @Override
-    public ChannelType getChannelType(ChannelTypeUID channelTypeUID, Locale locale) {
+    public @NonNull ChannelType getChannelType(ChannelTypeUID channelTypeUID, @Nullable Locale locale) {
         return channelTypes.get(channelTypeUID);
     }
 
     @Override
-    public Collection<ChannelType> getChannelTypes(Locale locale) {
+    public Collection<ChannelType> getChannelTypes(@Nullable Locale locale) {
         return channelTypes.values();
     }
 
     @Override
-    public ThingType getThingType(ThingTypeUID thingTypeUID, Locale locale) {
+    public @NonNull ThingType getThingType(ThingTypeUID thingTypeUID, @Nullable Locale locale) {
         return thingTypes.get(thingTypeUID);
     }
 
     @Override
-    public Collection<ThingType> getThingTypes(Locale locale) {
+    public Collection<ThingType> getThingTypes(@Nullable Locale locale) {
         return thingTypes.values();
     }
 }

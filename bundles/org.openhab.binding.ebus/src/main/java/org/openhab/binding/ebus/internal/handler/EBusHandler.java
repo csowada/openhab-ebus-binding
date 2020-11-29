@@ -32,6 +32,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
 import org.eclipse.smarthome.core.library.types.DateTimeType;
@@ -73,23 +74,23 @@ import de.csdev.ebus.utils.EBusUtils;
  *
  * @author Christian Sowada - Initial contribution
  */
-// @NonNullByDefault
+@NonNullByDefault
 public class EBusHandler extends BaseThingHandler {
 
-    private Map<ChannelUID, ByteBuffer> channelPollings = new HashMap<>();
-
     private final Logger logger = LoggerFactory.getLogger(EBusHandler.class);
+
+    private Map<ChannelUID, ByteBuffer> channelPollings = new HashMap<>();
 
     private Random random = new Random(12);
 
     private Map<ByteBuffer, ScheduledFuture<?>> uniqueTelegramPollings = new HashMap<>();
 
-    private EBusHandlerConfiguration configuration;
+    private @Nullable EBusHandlerConfiguration configuration;
 
     /**
      * @param thing
      */
-    public EBusHandler(@NonNull Thing thing) {
+    public EBusHandler(Thing thing) {
         super(thing);
     }
 
@@ -99,7 +100,7 @@ public class EBusHandler extends BaseThingHandler {
      * @param channel
      * @param value
      */
-    private void assignValueToChannel(@NonNull Channel channel, Object value) {
+    private void assignValueToChannel(Channel channel, @Nullable Object value) {
 
         String acceptedItemType = channel.getAcceptedItemType();
 
@@ -194,7 +195,7 @@ public class EBusHandler extends BaseThingHandler {
     /**
      * @param channelUID
      */
-    private void disposeChannelPolling(@NonNull ChannelUID channelUID) {
+    private void disposeChannelPolling(ChannelUID channelUID) {
 
         if (channelPollings.containsKey(channelUID)) {
             ByteBuffer telegram = channelPollings.remove(channelUID);
@@ -215,7 +216,7 @@ public class EBusHandler extends BaseThingHandler {
      * @param channel
      * @return
      */
-    private long getChannelPollingInterval(@NonNull Channel channel) {
+    private long getChannelPollingInterval(Channel channel) {
 
         final Map<@NonNull String, @NonNull String> properties = channel.getProperties();
         final Configuration thingConfiguration = thing.getConfiguration();
@@ -257,7 +258,7 @@ public class EBusHandler extends BaseThingHandler {
      * @return
      */
     @Nullable
-    private ByteBuffer getChannelTelegram(@NonNull Channel channel) {
+    private ByteBuffer getChannelTelegram(Channel channel) {
 
         final EBusClientBridge libClient = getLibClient();
 
@@ -282,7 +283,6 @@ public class EBusHandler extends BaseThingHandler {
      *
      * @return
      */
-    @NonNull
     private EBusClientBridge getLibClient() {
 
         Bridge bridge = getBridge();
@@ -334,7 +334,7 @@ public class EBusHandler extends BaseThingHandler {
      * @param sendQueueId
      */
     public void handleReceivedTelegram(IEBusCommandMethod commandChannel, Map<String, Object> result,
-            byte[] receivedData, Integer sendQueueId) {
+            byte[] receivedData, @Nullable Integer sendQueueId) {
 
         logger.debug("Handle received command by thing {} with id {} ...", thing.getLabel(), thing.getUID());
 
@@ -361,6 +361,7 @@ public class EBusHandler extends BaseThingHandler {
      *
      * @see org.eclipse.smarthome.core.thing.binding.BaseThingHandler#initialize()
      */
+    @SuppressWarnings("null")
     @Override
     public void initialize() {
 
@@ -370,7 +371,7 @@ public class EBusHandler extends BaseThingHandler {
         if (bridge == null) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "No bridge defined!");
 
-        } else if (StringUtils.isEmpty(configuration.slaveAddress)) {
+        } else if (configuration != null && StringUtils.isEmpty(configuration.slaveAddress)) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Slave address is not set!");
 
         } else if (bridge.getStatus() != ThingStatus.ONLINE) {
@@ -387,7 +388,7 @@ public class EBusHandler extends BaseThingHandler {
      *
      * @param channelUID
      */
-    private void initializeChannelPolling(@NonNull ChannelUID channelUID) {
+    private void initializeChannelPolling(ChannelUID channelUID) {
 
         Channel channel = thing.getChannel(channelUID.getId());
 
@@ -521,10 +522,16 @@ public class EBusHandler extends BaseThingHandler {
      * @param commandMethod
      * @return
      */
+    @SuppressWarnings("null")
     public boolean supportsTelegram(byte[] receivedData, IEBusCommandMethod commandMethod) {
 
         final String collectionId = thing.getThingTypeUID().getId();
         if (!commandMethod.getParent().getParentCollection().getId().equals(collectionId)) {
+            return false;
+        }
+
+        logger.trace("eBUS handler cfg {}", configuration);
+        if (configuration == null) {
             return false;
         }
 
@@ -537,8 +544,6 @@ public class EBusHandler extends BaseThingHandler {
         boolean filterAcceptSource = BooleanUtils.isTrue(configuration.filterAcceptMaster);
         boolean filterAcceptDestination = BooleanUtils.isTrue(configuration.filterAcceptSlave);
         boolean filterAcceptBroadcast = BooleanUtils.isTrue(configuration.filterAcceptBroadcasts);
-
-        logger.trace("eBUS handler cfg {}", configuration);
 
         // only interesting for broadcasts
         Byte masterAddressComp = masterAddress == null
@@ -602,7 +607,7 @@ public class EBusHandler extends BaseThingHandler {
      *
      * @param channelUID
      */
-    private void updateChannelPolling(@NonNull ChannelUID channelUID) {
+    private void updateChannelPolling(ChannelUID channelUID) {
         disposeChannelPolling(channelUID);
         initializeChannelPolling(channelUID);
     }

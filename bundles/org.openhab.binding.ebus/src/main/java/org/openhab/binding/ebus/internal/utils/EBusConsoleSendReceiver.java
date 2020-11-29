@@ -15,6 +15,8 @@ package org.openhab.binding.ebus.internal.utils;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.io.console.Console;
 
 import de.csdev.ebus.client.EBusClient;
@@ -31,10 +33,11 @@ import de.csdev.ebus.utils.EBusUtils;
  *
  * @author Christian Sowada - Initial contribution
  */
+@NonNullByDefault
 public class EBusConsoleSendReceiver extends EBusConnectorEventListener implements IEBusParserListener {
 
     private EBusClient client;
-    private Integer queueId;
+    private @Nullable Integer queueId;
     private Console console;
 
     public EBusConsoleSendReceiver(EBusClient client, Console console) {
@@ -52,17 +55,14 @@ public class EBusConsoleSendReceiver extends EBusConnectorEventListener implemen
     }
 
     public void dispose() {
-        if (client != null) {
-            client.removeEBusEventListener(this);
-            client.removeEBusParserListener(this);
-            queueId = null;
-            client = null;
-        }
+        client.removeEBusEventListener(this);
+        client.removeEBusParserListener(this);
     }
 
     @Override
-    public void onTelegramResolved(IEBusCommandMethod commandChannel, Map<String, Object> result, byte[] receivedData,
-            Integer sendQueueId) {
+    @NonNullByDefault({})
+    public void onTelegramResolved(@Nullable IEBusCommandMethod commandChannel, @Nullable Map<String, Object> result,
+            byte @Nullable [] receivedData, @Nullable Integer sendQueueId) {
 
         if (queueId != null && queueId.equals(sendQueueId)) {
 
@@ -70,10 +70,17 @@ public class EBusConsoleSendReceiver extends EBusConnectorEventListener implemen
             console.printf("Command ID: %s\n", EBusCommandUtils.getFullId(commandChannel));
             console.printf("Telegram  : %s\n", EBusUtils.toHexDumpString(receivedData).toString());
 
-            console.println("");
-            console.println("Received values:");
-            for (Entry<String, Object> entry : result.entrySet()) {
-                console.println(String.format(" %s: %s", entry.getKey(), entry.getValue().toString()));
+            if (result != null) {
+                console.println("");
+                console.println("Received values:");
+                for (Entry<String, @Nullable Object> entry : result.entrySet()) {
+                    if (entry != null) {
+                        Object value = entry.getValue();
+                        if (value != null) {
+                            console.println(String.format(" %s: %s", entry.getKey(), value.toString()));
+                        }
+                    }
+                }
             }
 
             dispose();
@@ -81,8 +88,8 @@ public class EBusConsoleSendReceiver extends EBusConnectorEventListener implemen
     }
 
     @Override
-    public void onTelegramResolveFailed(IEBusCommandMethod commandChannel, byte[] receivedData, Integer sendQueueId,
-            String exceptionMessage) {
+    public void onTelegramResolveFailed(@Nullable IEBusCommandMethod commandChannel, byte @Nullable [] receivedData,
+            @Nullable Integer sendQueueId, @Nullable String exceptionMessage) {
 
         if (queueId != null && queueId.equals(sendQueueId)) {
 
@@ -96,23 +103,23 @@ public class EBusConsoleSendReceiver extends EBusConnectorEventListener implemen
     }
 
     @Override
-    public void onTelegramException(EBusDataException exception, Integer sendQueueId) {
+    public void onTelegramException(@Nullable EBusDataException exception, @Nullable Integer sendQueueId) {
         if (queueId != null && queueId.equals(sendQueueId)) {
 
             console.printf("Status    : FAILED %s\n", sendQueueId);
-            console.printf("Error     : %s\n", exception.getMessage());
+            console.printf("Error     : %s\n", exception != null ? exception.getMessage() : "");
 
             dispose();
         }
     }
 
     @Override
-    public void onConnectionException(Exception e) {
+    public void onConnectionException(@Nullable Exception e) {
         dispose();
     }
 
     @Override
-    public void onConnectionStatusChanged(ConnectionStatus status) {
+    public void onConnectionStatusChanged(@Nullable ConnectionStatus status) {
         dispose();
     }
 }

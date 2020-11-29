@@ -14,18 +14,12 @@ package org.openhab.binding.ebus.internal.utils;
 
 import static org.openhab.binding.ebus.internal.EBusBindingConstants.BINDING_ID;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import de.csdev.ebus.command.IEBusCommand;
 import de.csdev.ebus.command.IEBusCommandCollection;
@@ -38,24 +32,6 @@ import de.csdev.ebus.command.IEBusValue;
  */
 @NonNullByDefault
 public class EBusBindingUtils {
-
-    private static final Logger logger = LoggerFactory.getLogger(EBusBindingUtils.class);
-
-    /**
-     * Save new URI method
-     *
-     * @param id
-     * @return
-     */
-    @Nullable
-    public static URI getURI(String url) {
-        try {
-            return new URI(url);
-        } catch (URISyntaxException e) {
-            logger.error("error!", e);
-        }
-        return null;
-    }
 
     /**
      * Generates a channel type uid

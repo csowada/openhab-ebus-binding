@@ -16,40 +16,44 @@ import static org.openhab.binding.ebus.internal.EBusBindingConstants.*;
 
 import java.math.BigDecimal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * The {@link EBusBridgeHandlerConfiguration} class contains fields mapping thing configuration parameters.
  *
  * @author Christian Sowada - Initial contribution
  */
+@NonNullByDefault
 public class EBusBridgeHandlerConfiguration {
 
-    public String masterAddress;
+    public @Nullable String masterAddress;
 
-    public String slaveAddress;
+    public @Nullable String slaveAddress;
 
-    public String serialPort;
+    public @Nullable String serialPort;
 
-    public String ipAddress;
+    public @Nullable String ipAddress;
 
-    public BigDecimal port;
+    public @Nullable BigDecimal port;
 
-    public String raw;
+    public @Nullable String raw;
 
-    public String ebusd;
+    public @Nullable String ebusd;
 
-    public String networkDriver = DRIVER_RAW;
+    public @Nullable String networkDriver = DRIVER_RAW;
 
-    public String serialPortDriver = DRIVER_NRJAVASERIAL;
+    public @Nullable String serialPortDriver = DRIVER_BUILDIN;
 
-    public Boolean advancedLogging;
+    public @Nullable Boolean advancedLogging;
 
-    public String configurationUrl;
+    public @Nullable String configurationUrl;
 
-    public String configurationUrl1;
+    public @Nullable String configurationUrl1;
 
-    public String configurationUrl2;
+    public @Nullable String configurationUrl2;
 
-    public String configurationBundleUrl;
+    public @Nullable String configurationBundleUrl;
 
     @Override
     public String toString() {

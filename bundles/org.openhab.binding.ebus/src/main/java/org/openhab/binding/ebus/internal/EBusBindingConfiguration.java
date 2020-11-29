@@ -12,32 +12,37 @@
  */
 package org.openhab.binding.ebus.internal;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
+
 /**
  * The {@link EBusBindingConfiguration} class contains fields mapping thing configuration parameters.
  *
  * @author Christian Sowada - Initial contribution
  */
+@NonNullByDefault
 public class EBusBindingConfiguration {
 
     /**
      * Define a URL to load external configuration files.
      */
-    public String configurationUrl;
+
+    public @Nullable String configurationUrl;
 
     /**
      * Define a URL to load external configuration files.
      */
-    public String configurationUrl1;
+    public @Nullable String configurationUrl1;
 
     /**
      * Define a URL to load external configuration files.
      */
-    public String configurationUrl2;
+    public @Nullable String configurationUrl2;
 
     /**
      * Define a URL to load external configuration bundles
      */
-    public String configurationBundleUrl;
+    public @Nullable String configurationBundleUrl;
 
     @Override
     public String toString() {
