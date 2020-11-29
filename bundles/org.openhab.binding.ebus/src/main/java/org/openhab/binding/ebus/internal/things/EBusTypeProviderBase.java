@@ -21,13 +21,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
+import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
 import org.eclipse.smarthome.core.thing.type.ChannelType;
+import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
 import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
 import org.eclipse.smarthome.core.thing.type.ThingType;
 
@@ -36,7 +38,8 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
  * @author Christian Sowada - Initial contribution
  */
 @NonNullByDefault
-public abstract class EBusTypeProviderBase implements IEBusTypeProvider {
+public abstract class EBusTypeProviderBase
+        implements IEBusTypeProvider, ThingTypeProvider, ChannelGroupTypeProvider, ChannelTypeProvider {
 
     protected final List<String> supportedBridgeTypeUIDs = Arrays.asList(THING_TYPE_EBUS_BRIDGE.getAsString());
 
@@ -47,7 +50,7 @@ public abstract class EBusTypeProviderBase implements IEBusTypeProvider {
     protected Map<ThingTypeUID, ThingType> thingTypes = new HashMap<>();
 
     @Override
-    public @NonNull ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID,
+    public @Nullable ChannelGroupType getChannelGroupType(ChannelGroupTypeUID channelGroupTypeUID,
             @Nullable Locale locale) {
         return channelGroupTypes.get(channelGroupTypeUID);
     }
@@ -58,7 +61,7 @@ public abstract class EBusTypeProviderBase implements IEBusTypeProvider {
     }
 
     @Override
-    public @NonNull ChannelType getChannelType(ChannelTypeUID channelTypeUID, @Nullable Locale locale) {
+    public @Nullable ChannelType getChannelType(ChannelTypeUID channelTypeUID, @Nullable Locale locale) {
         return channelTypes.get(channelTypeUID);
     }
 
@@ -68,7 +71,7 @@ public abstract class EBusTypeProviderBase implements IEBusTypeProvider {
     }
 
     @Override
-    public @NonNull ThingType getThingType(ThingTypeUID thingTypeUID, @Nullable Locale locale) {
+    public @Nullable ThingType getThingType(ThingTypeUID thingTypeUID, @Nullable Locale locale) {
         return thingTypes.get(thingTypeUID);
     }
 

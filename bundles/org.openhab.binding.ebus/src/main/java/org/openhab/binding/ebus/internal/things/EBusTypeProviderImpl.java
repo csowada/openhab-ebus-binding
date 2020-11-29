@@ -298,9 +298,10 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
         channelTypes.clear();
         thingTypes.clear();
 
+        EBusCommandRegistry commandRegistry = this.commandRegistry;
         if (commandRegistry != null) {
             commandRegistry.clear();
-            commandRegistry = null;
+            this.commandRegistry = null;
         }
     }
 
@@ -343,6 +344,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
     public boolean reload() {
 
         try {
+            ConfigurationAdmin configurationAdmin = this.configurationAdmin;
             if (configurationAdmin != null) {
                 Configuration configuration = configurationAdmin.getConfiguration(BINDING_PID, null);
                 updateConfiguration(configuration.getProperties());
@@ -458,17 +460,20 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
         thingTypes.put(thingType.getUID(), thingType);
     }
 
-    private EBusBindingConfiguration getConfiguration(Dictionary<String, ?> properties) {
+    private @Nullable EBusBindingConfiguration getConfiguration(Dictionary<String, ?> properties) {
         List<String> keys = Collections.list(properties.keys());
         Map<String, Object> dictCopy = keys.stream().collect(Collectors.toMap(Function.identity(), properties::get));
 
-        org.eclipse.smarthome.config.core.Configuration c = new org.eclipse.smarthome.config.core.Configuration(
-                dictCopy);
+        if (dictCopy != null) {
+            @SuppressWarnings("null")
+            org.eclipse.smarthome.config.core.Configuration c = new org.eclipse.smarthome.config.core.Configuration(
+                    dictCopy);
+            return c.as(EBusBindingConfiguration.class);
+        }
 
-        return c.as(EBusBindingConfiguration.class);
+        return null;
     }
 
-    @SuppressWarnings("null")
     private void updateConfiguration(@Nullable Dictionary<String, ?> properties) {
 
         if (properties == null) {
@@ -479,8 +484,10 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
 
         EBusBindingConfiguration configuration = getConfiguration(properties);
 
+        EBusCommandRegistry commandRegistry = this.commandRegistry;
+
         // Map
-        if (commandRegistry == null) {
+        if (commandRegistry == null || configuration == null) {
             return;
         }
 
@@ -488,34 +495,30 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
 
         commandRegistry.loadBuildInCommandCollections();
 
-        if (properties != null && !properties.isEmpty()) {
+        if (!properties.isEmpty()) {
 
-            if (configuration.configurationUrl != null) {
-                logger.info("Load custom configuration file '{}' ...", configuration.configurationUrl);
-                if (commandRegistry != null && configuration.configurationUrl != null) {
-                    loadConfigurationByUrl(commandRegistry, configuration.configurationUrl);
-                }
+            String configurationUrl = configuration.configurationUrl;
+            if (configurationUrl != null) {
+                logger.info("Load custom configuration file '{}' ...", configurationUrl);
+                loadConfigurationByUrl(commandRegistry, configurationUrl);
             }
 
-            if (configuration.configurationUrl1 != null) {
-                logger.info("Load custom configuration file '{}' ...", configuration.configurationUrl1);
-                if (commandRegistry != null && configuration.configurationUrl1 != null) {
-                    loadConfigurationByUrl(commandRegistry, configuration.configurationUrl1);
-                }
+            String configurationUrl1 = configuration.configurationUrl1;
+            if (configurationUrl1 != null) {
+                logger.info("Load custom configuration file '{}' ...", configurationUrl1);
+                loadConfigurationByUrl(commandRegistry, configurationUrl1);
             }
 
-            if (configuration.configurationUrl2 != null) {
-                logger.info("Load custom configuration file '{}' ...", configuration.configurationUrl2);
-                if (commandRegistry != null && configuration.configurationUrl2 != null) {
-                    loadConfigurationByUrl(commandRegistry, configuration.configurationUrl2);
-                }
+            String configurationUrl2 = configuration.configurationUrl2;
+            if (configurationUrl2 != null) {
+                logger.info("Load custom configuration file '{}' ...", configurationUrl2);
+                loadConfigurationByUrl(commandRegistry, configurationUrl2);
             }
 
-            if (configuration.configurationBundleUrl != null) {
-                logger.info("Load custom configuration bundle '{}' ...", configuration.configurationBundleUrl);
-                if (commandRegistry != null && configuration.configurationBundleUrl != null) {
-                    loadConfigurationBundleByUrl(commandRegistry, configuration.configurationBundleUrl);
-                }
+            String configurationBundleUrl = configuration.configurationBundleUrl;
+            if (configurationBundleUrl != null) {
+                logger.info("Load custom configuration bundle '{}' ...", configurationBundleUrl);
+                loadConfigurationBundleByUrl(commandRegistry, configurationBundleUrl);
             }
         }
 

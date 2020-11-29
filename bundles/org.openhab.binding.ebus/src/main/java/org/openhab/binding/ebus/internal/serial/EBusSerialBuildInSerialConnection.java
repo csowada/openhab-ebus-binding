@@ -37,7 +37,7 @@ import de.csdev.ebus.core.connection.AbstractEBusConnection;
 @NonNullByDefault
 public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
 
-    private static final Logger logger = LoggerFactory.getLogger(EBusSerialBuildInSerialConnection.class);
+    private final Logger logger = LoggerFactory.getLogger(EBusSerialBuildInSerialConnection.class);
 
     /** The serial object */
     private @Nullable SerialPort serialPort;

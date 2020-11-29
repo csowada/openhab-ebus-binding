@@ -31,7 +31,6 @@ import javax.measure.quantity.Temperature;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.config.core.Configuration;
@@ -85,7 +84,7 @@ public class EBusHandler extends BaseThingHandler {
 
     private Map<ByteBuffer, ScheduledFuture<?>> uniqueTelegramPollings = new HashMap<>();
 
-    private @Nullable EBusHandlerConfiguration configuration;
+    // private @Nullable EBusHandlerConfiguration configuration;
 
     /**
      * @param thing
@@ -159,7 +158,7 @@ public class EBusHandler extends BaseThingHandler {
     }
 
     @Override
-    public void channelLinked(@NonNull ChannelUID channelUID) {
+    public void channelLinked(ChannelUID channelUID) {
         super.channelLinked(channelUID);
 
         logger.trace("channelLinked {}", channelUID);
@@ -167,7 +166,7 @@ public class EBusHandler extends BaseThingHandler {
     }
 
     @Override
-    public void channelUnlinked(@NonNull ChannelUID channelUID) {
+    public void channelUnlinked(ChannelUID channelUID) {
         super.channelUnlinked(channelUID);
 
         logger.trace("channelUnlinked {}", channelUID);
@@ -218,7 +217,7 @@ public class EBusHandler extends BaseThingHandler {
      */
     private long getChannelPollingInterval(Channel channel) {
 
-        final Map<@NonNull String, @NonNull String> properties = channel.getProperties();
+        final Map<String, String> properties = channel.getProperties();
         final Configuration thingConfiguration = thing.getConfiguration();
         final Configuration configuration = channel.getConfiguration();
 
@@ -262,7 +261,7 @@ public class EBusHandler extends BaseThingHandler {
 
         final EBusClientBridge libClient = getLibClient();
 
-        final Map<@NonNull String, @NonNull String> properties = channel.getProperties();
+        final Map<String, String> properties = channel.getProperties();
         final String collectionId = thing.getThingTypeUID().getId();
 
         // final String collectionId = properties.get(COLLECTION);
@@ -306,7 +305,7 @@ public class EBusHandler extends BaseThingHandler {
      * org.eclipse.smarthome.core.types.Command)
      */
     @Override
-    public void handleCommand(@NonNull ChannelUID channelUID, Command command) {
+    public void handleCommand(ChannelUID channelUID, Command command) {
 
         if (!(command instanceof RefreshType)) {
             Channel channel = thing.getChannel(channelUID.getId());
@@ -361,17 +360,16 @@ public class EBusHandler extends BaseThingHandler {
      *
      * @see org.eclipse.smarthome.core.thing.binding.BaseThingHandler#initialize()
      */
-    @SuppressWarnings("null")
     @Override
     public void initialize() {
 
-        configuration = getConfigAs(EBusHandlerConfiguration.class);
+        EBusHandlerConfiguration configuration = getConfigAs(EBusHandlerConfiguration.class);
 
         Bridge bridge = getBridge();
         if (bridge == null) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "No bridge defined!");
 
-        } else if (configuration != null && StringUtils.isEmpty(configuration.slaveAddress)) {
+        } else if (StringUtils.isEmpty(configuration.slaveAddress)) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Slave address is not set!");
 
         } else if (bridge.getStatus() != ThingStatus.ONLINE) {
@@ -425,7 +423,7 @@ public class EBusHandler extends BaseThingHandler {
                 int firstExecutionDelay = random.nextInt(30);
 
                 // create a job to send this raw telegram every n seconds
-                ScheduledFuture<?> job = scheduler.scheduleAtFixedRate(() -> {
+                ScheduledFuture<?> job = scheduler.scheduleWithFixedDelay(() -> {
                     logger.trace("Poll command \"{}\" with \"{}\" ...", channel.getUID(),
                             EBusUtils.toHexDumpString(telegram).toString());
 
@@ -472,7 +470,7 @@ public class EBusHandler extends BaseThingHandler {
 
         EBusClientBridge libClient = getLibClient();
 
-        Map<@NonNull String, String> properties = thing.getProperties();
+        Map<String, String> properties = thing.getProperties();
         String oldHash = properties.get("collectionHash");
         String collectionId = thing.getThingTypeUID().getId();
         IEBusCommandCollection collection = libClient.getClient().getCommandCollection(collectionId);
@@ -522,7 +520,6 @@ public class EBusHandler extends BaseThingHandler {
      * @param commandMethod
      * @return
      */
-    @SuppressWarnings("null")
     public boolean supportsTelegram(byte[] receivedData, IEBusCommandMethod commandMethod) {
 
         final String collectionId = thing.getThingTypeUID().getId();
@@ -530,10 +527,11 @@ public class EBusHandler extends BaseThingHandler {
             return false;
         }
 
+        EBusHandlerConfiguration configuration = getConfigAs(EBusHandlerConfiguration.class);
         logger.trace("eBUS handler cfg {}", configuration);
-        if (configuration == null) {
-            return false;
-        }
+        // if (configuration == null) {
+        // return false;
+        // }
 
         byte sourceAddress = receivedData[0];
         byte destinationAddress = receivedData[1];
@@ -582,7 +580,7 @@ public class EBusHandler extends BaseThingHandler {
     }
 
     @Override
-    public void thingUpdated(@NonNull Thing thing) {
+    public void thingUpdated(Thing thing) {
 
         // Info: I expect no difference in the channel list without a restart!
         Thing currentThing = this.thing;

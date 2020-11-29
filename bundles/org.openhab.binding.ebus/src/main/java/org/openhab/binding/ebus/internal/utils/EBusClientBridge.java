@@ -59,11 +59,10 @@ public class EBusClientBridge {
     @Nullable
     private IEBusController controller;
 
-    // @Nullable
-    private EBusClient client;
-
     @Nullable
     private IEBusConnection connection;
+
+    private EBusClient client;
 
     /**
      * @param configuration
@@ -124,7 +123,6 @@ public class EBusClientBridge {
      * @return
      */
     public boolean isConnectionValid() {
-
         if (controller instanceof EBusEbusdController) {
             return true;
         }
@@ -159,7 +157,6 @@ public class EBusClientBridge {
      */
     @Nullable
     public ByteBuffer generateSetterTelegram(Thing thing, Channel channel, Command command) throws EBusTypeException {
-
         String slaveAddress = (String) thing.getConfiguration().get(EBusBindingConstants.SLAVE_ADDRESS);
         String collectionId = thing.getThingTypeUID().getId();
         String commandId = channel.getProperties().get(COMMAND);
@@ -188,7 +185,7 @@ public class EBusClientBridge {
             }
         }
 
-        HashMap<String, Object> values = new HashMap<>();
+        HashMap<@Nullable String, @Nullable Object> values = new HashMap<>();
 
         if (command instanceof State) {
             State state = (State) command;
@@ -223,7 +220,6 @@ public class EBusClientBridge {
     @Nullable
     public ByteBuffer generatePollingTelegram(String collectionId, String commandId, IEBusCommandMethod.Method type,
             Thing targetThing) throws EBusTypeException {
-
         String slaveAddress = (String) targetThing.getConfiguration().get(EBusBindingConstants.SLAVE_ADDRESS);
 
         IEBusCommandMethod commandMethod = client.getConfigurationProvider().getCommandMethodById(collectionId,
@@ -253,7 +249,6 @@ public class EBusClientBridge {
      * @param masterAddress
      */
     public void initClient(Byte masterAddress) {
-
         // connect the high level client
         client.connect(controller, masterAddress);
     }
@@ -272,7 +267,6 @@ public class EBusClientBridge {
      */
     @SuppressWarnings("null")
     public void stopClient() {
-
         if (controller != null && !controller.isInterrupted()) {
             controller.interrupt();
         }

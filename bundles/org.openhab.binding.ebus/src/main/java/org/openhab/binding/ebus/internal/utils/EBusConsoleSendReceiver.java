@@ -46,7 +46,6 @@ public class EBusConsoleSendReceiver extends EBusConnectorEventListener implemen
     }
 
     public void send(byte[] data) throws EBusControllerException, EBusDataException {
-
         client.addEBusEventListener(this);
         client.addEBusParserListener(this);
 
@@ -64,8 +63,8 @@ public class EBusConsoleSendReceiver extends EBusConnectorEventListener implemen
     public void onTelegramResolved(@Nullable IEBusCommandMethod commandChannel, @Nullable Map<String, Object> result,
             byte @Nullable [] receivedData, @Nullable Integer sendQueueId) {
 
+        Integer queueId = this.queueId;
         if (queueId != null && queueId.equals(sendQueueId)) {
-
             console.printf("Status    : Successful send %s\n", sendQueueId);
             console.printf("Command ID: %s\n", EBusCommandUtils.getFullId(commandChannel));
             console.printf("Telegram  : %s\n", EBusUtils.toHexDumpString(receivedData).toString());
@@ -91,8 +90,8 @@ public class EBusConsoleSendReceiver extends EBusConnectorEventListener implemen
     public void onTelegramResolveFailed(@Nullable IEBusCommandMethod commandChannel, byte @Nullable [] receivedData,
             @Nullable Integer sendQueueId, @Nullable String exceptionMessage) {
 
+        Integer queueId = this.queueId;
         if (queueId != null && queueId.equals(sendQueueId)) {
-
             console.printf("Status    : FAILED %s\n", sendQueueId);
             console.printf("Command ID: %s\n", EBusCommandUtils.getFullId(commandChannel));
             console.printf("Telegram  : %s\n", EBusUtils.toHexDumpString(receivedData).toString());
@@ -104,8 +103,9 @@ public class EBusConsoleSendReceiver extends EBusConnectorEventListener implemen
 
     @Override
     public void onTelegramException(@Nullable EBusDataException exception, @Nullable Integer sendQueueId) {
-        if (queueId != null && queueId.equals(sendQueueId)) {
 
+        Integer queueId = this.queueId;
+        if (queueId != null && queueId.equals(sendQueueId)) {
             console.printf("Status    : FAILED %s\n", sendQueueId);
             console.printf("Error     : %s\n", exception != null ? exception.getMessage() : "");
 

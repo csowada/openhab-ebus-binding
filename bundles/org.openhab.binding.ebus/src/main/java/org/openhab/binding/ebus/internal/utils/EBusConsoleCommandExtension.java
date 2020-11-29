@@ -133,9 +133,10 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
      */
     private Collection<EBusBridgeHandler> getAllEBusBridgeHandlers() {
         Collection<EBusBridgeHandler> result = new ArrayList<EBusBridgeHandler>();
+        ThingRegistry thingRegistry = this.thingRegistry;
+
         if (thingRegistry != null) {
             for (Thing thing : thingRegistry.getAll()) {
-
                 if (thing.getHandler() instanceof EBusBridgeHandler) {
                     EBusBridgeHandler handler = (EBusBridgeHandler) thing.getHandler();
                     if (handler != null) {
@@ -149,13 +150,12 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
     }
 
     private void listChannels(String[] args, Console console) {
-
+        IEBusTypeProvider typeProvider = this.typeProvider;
         if (typeProvider != null) {
 
             Collection<ThingType> thingTypes = typeProvider.getThingTypes(null);
 
             for (ThingType thingType : thingTypes) {
-
                 String format = String.format("** %-45s | ID: %-20s **", "Type: " + thingType.getLabel(),
                         thingType.getUID().getId());
 
@@ -169,7 +169,7 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
 
                     if (typeProvider != null) {
 
-                        ChannelGroupType channelGroupType = this.typeProvider
+                        ChannelGroupType channelGroupType = typeProvider
                                 .getChannelGroupType(channelGroupDefinition.getTypeUID(), null);
 
                         if (channelGroupType != null) {
@@ -205,12 +205,11 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
         console.println(String.format("%-40s-+-%-40s-+-%-10s", StringUtils.repeat("-", 40), StringUtils.repeat("-", 40),
                 StringUtils.repeat("-", 10)));
 
+        ThingRegistry thingRegistry = this.thingRegistry;
+
         if (thingRegistry != null) {
-
             for (Thing thing : thingRegistry.getAll()) {
-
                 if (thing.getHandler() instanceof EBusBridgeHandler || thing.getHandler() instanceof EBusHandler) {
-
                     String type = "node";
 
                     if (thing.getHandler() instanceof EBusBridgeHandler) {
@@ -245,23 +244,21 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
      * @param bridge
      */
     private void devices(String[] args, Console console, @Nullable EBusBridgeHandler bridge) {
-
         if (bridge == null) {
-
             for (EBusBridgeHandler handler : getAllEBusBridgeHandlers()) {
-
                 EBusClient client = handler.getLibClient().getClient();
                 EBusDeviceTable deviceTable = client.getDeviceTable();
-                Collection<IEBusCommandCollection> collections = client.getCommandCollections();
+                @Nullable
+                Collection<@Nullable IEBusCommandCollection> collections = client.getCommandCollections();
 
                 console.print(EBusConsoleUtils.getDeviceTableInformation(collections, deviceTable));
             }
 
         } else {
-
             EBusClient client = bridge.getLibClient().getClient();
             EBusDeviceTable deviceTable = client.getDeviceTable();
-            Collection<IEBusCommandCollection> collections = client.getCommandCollections();
+            @Nullable
+            Collection<@Nullable IEBusCommandCollection> collections = client.getCommandCollections();
 
             console.print(EBusConsoleUtils.getDeviceTableInformation(collections, deviceTable));
 
@@ -273,6 +270,7 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
      * @param console
      */
     private void resolve(byte[] data, Console console) {
+        IEBusTypeProvider typeProvider = this.typeProvider;
         if (typeProvider != null) {
             console.println(EBusConsoleUtils.analyzeTelegram(typeProvider.getCommandRegistry(), data));
         }
@@ -280,7 +278,6 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
 
     @Override
     public void execute(String[] args, Console console) {
-
         try {
             if (args.length == 0) {
                 list(args, console);
@@ -329,6 +326,7 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
                 }
             } else if (StringUtils.equals(args[0], SUBCMD_RELOAD)) {
                 console.println("Reload all eBUS configurations ...");
+                IEBusTypeProvider typeProvider = this.typeProvider;
                 if (typeProvider != null) {
                     typeProvider.reload();
                 }
@@ -386,8 +384,9 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
      */
     @Nullable
     private EBusBridgeHandler getBridge(String bridgeUID, Console console) {
-
+        ThingRegistry thingRegistry = this.thingRegistry;
         Thing thing = null;
+
         try {
             if (thingRegistry != null) {
                 thing = thingRegistry.get(new ThingUID(bridgeUID));
@@ -412,7 +411,6 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
 
     @Override
     public List<String> getUsages() {
-
         String line = "%s %s - %s";
         String line2 = "%s %s %s - %s";
 

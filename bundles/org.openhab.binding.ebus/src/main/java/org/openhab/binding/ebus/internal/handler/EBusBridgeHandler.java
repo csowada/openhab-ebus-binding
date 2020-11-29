@@ -21,7 +21,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -64,7 +63,7 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
 
     private final Logger logger = LoggerFactory.getLogger(EBusBridgeHandler.class);
 
-    public final static Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections
+    public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections
             .singleton(EBusBindingConstants.THING_TYPE_EBUS_BRIDGE);
 
     private EBusClientBridge clientBridge;
@@ -76,7 +75,7 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
     private EBusMetricsService metricsService = new EBusMetricsService(this);
 
     @Override
-    public Collection<@NonNull Class<? extends @NonNull ThingHandlerService>> getServices() {
+    public Collection<Class<? extends ThingHandlerService>> getServices() {
         return Collections.singleton(EBusActions.class);
     }
 
@@ -103,7 +102,6 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
      * @return
      */
     @Override
-    @NonNull
     public EBusClientBridge getLibClient() {
         return clientBridge;
     }
@@ -324,7 +322,7 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
      * org.eclipse.smarthome.core.types.Command)
      */
     @Override
-    public void handleCommand(@NonNull ChannelUID channelUID, Command command) {
+    public void handleCommand(ChannelUID channelUID, Command command) {
         // noop for bridge
     }
 

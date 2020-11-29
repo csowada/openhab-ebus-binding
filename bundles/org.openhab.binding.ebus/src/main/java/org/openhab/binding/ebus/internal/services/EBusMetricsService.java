@@ -62,7 +62,7 @@ public class EBusMetricsService {
 
         deactivate();
 
-        metricsRefreshSchedule = bridge.getBindingScheduler().scheduleAtFixedRate(new Runnable() {
+        metricsRefreshSchedule = bridge.getBindingScheduler().scheduleWithFixedDelay(new Runnable() {
 
             @Override
             public void run() {

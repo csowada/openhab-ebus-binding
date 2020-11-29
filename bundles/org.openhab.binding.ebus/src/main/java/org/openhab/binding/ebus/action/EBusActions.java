@@ -47,7 +47,7 @@ import de.csdev.ebus.utils.EBusUtils;
 @NonNullByDefault
 public class EBusActions implements ThingActions {
 
-    private final static Logger logger = LoggerFactory.getLogger(EBusActions.class);
+    private final Logger logger = LoggerFactory.getLogger(EBusActions.class);
 
     /** The eBUS bridge */
     private @Nullable EBusBridgeHandler handler;
@@ -69,8 +69,9 @@ public class EBusActions implements ThingActions {
      */
     public @Nullable EBusClient getEBusClient() {
 
-        if (this.handler != null) {
-            EBusClientBridge clientBridge = this.handler.getLibClient();
+        EBusBridgeHandler handler = this.handler;
+        if (handler != null) {
+            EBusClientBridge clientBridge = handler.getLibClient();
             return clientBridge.getClient();
         }
 
@@ -103,7 +104,8 @@ public class EBusActions implements ThingActions {
      * @param values Additional values as Map
      */
     public static void sendCommand(@Nullable ThingActions actions, @Nullable String collectionId,
-            @Nullable String commandId, @Nullable String destinationAddress, @Nullable Map<String, Object> values) {
+            @Nullable String commandId, @Nullable String destinationAddress,
+            @Nullable Map<@Nullable String, @Nullable Object> values) {
         if (actions instanceof EBusActions) {
             ((EBusActions) actions).sendCommand(collectionId, commandId, destinationAddress, values);
         } else {
@@ -152,7 +154,7 @@ public class EBusActions implements ThingActions {
     public void sendCommand(@ActionInput(name = "collectionId", label = "Collection ID") @Nullable String collectionId,
             @ActionInput(name = "commandId", label = "Command ID") @Nullable String commandId,
             @ActionInput(name = "destinationAddress", label = "Destination address (HEX)") @Nullable String destinationAddress,
-            @ActionInput(name = "values", label = "Values as Map") @Nullable Map<String, Object> values) {
+            @ActionInput(name = "values", label = "Values as Map") @Nullable Map<@Nullable String, @Nullable Object> values) {
 
         if (StringUtils.isEmpty(collectionId)) {
             throw new IllegalArgumentException("Parameter 'collectionId' is required!");
