@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.csdev.ebus.client.EBusClient;
+import de.csdev.ebus.command.EBusCommandException;
 import de.csdev.ebus.command.EBusCommandUtils;
 import de.csdev.ebus.command.IEBusCommandMethod;
 import de.csdev.ebus.command.IEBusCommandMethod.Method;
@@ -156,15 +157,15 @@ public class EBusActions implements ThingActions {
             @ActionInput(name = "destinationAddress", label = "Destination address (HEX)") @Nullable String destinationAddress,
             @ActionInput(name = "values", label = "Values as Map") @Nullable Map<@Nullable String, @Nullable Object> values) {
 
-        if (StringUtils.isEmpty(collectionId)) {
+        if (collectionId == null || StringUtils.isEmpty(collectionId)) {
             throw new IllegalArgumentException("Parameter 'collectionId' is required!");
         }
 
-        if (StringUtils.isEmpty(commandId)) {
+        if (commandId == null || StringUtils.isEmpty(commandId)) {
             throw new IllegalArgumentException("Parameter 'commandId' is required!");
         }
 
-        if (StringUtils.isEmpty(destinationAddress)) {
+        if (destinationAddress == null || StringUtils.isEmpty(destinationAddress)) {
             throw new IllegalArgumentException("Parameter 'destinationAddress' is required!");
         }
 
@@ -199,6 +200,8 @@ public class EBusActions implements ThingActions {
         } catch (EBusTypeException e) {
             logger.error("error!", e);
         } catch (EBusControllerException e) {
+            logger.error("error!", e);
+        } catch (EBusCommandException e) {
             logger.error("error!", e);
         }
     }

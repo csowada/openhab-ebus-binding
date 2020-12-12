@@ -15,6 +15,7 @@ package org.openhab.binding.ebus.internal.utils;
 import static org.openhab.binding.ebus.internal.EBusBindingConstants.BINDING_ID;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ChannelUID;
 import org.eclipse.smarthome.core.thing.ThingTypeUID;
 import org.eclipse.smarthome.core.thing.ThingUID;
@@ -51,10 +52,21 @@ public class EBusBindingUtils {
      * @param thingUID
      * @return
      */
-    public static ChannelUID generateChannelUID(IEBusValue value, ThingUID thingUID) {
+    public static @Nullable ChannelUID generateChannelUID(IEBusValue value, ThingUID thingUID) {
         IEBusCommandMethod method = value.getParent();
+
+        if (method == null) {
+            return null;
+        }
+
         IEBusCommand command = method.getParent();
-        return new ChannelUID(thingUID, generateChannelGroupID(command), formatId(value.getName()));
+
+        String name = value.getName();
+        if (name == null) {
+            return null;
+        }
+
+        return new ChannelUID(thingUID, generateChannelGroupID(command), formatId(name));
     }
 
     /**
@@ -106,10 +118,21 @@ public class EBusBindingUtils {
      * @param value
      * @return
      */
-    public static String generateValueId(IEBusValue value) {
+    public static @Nullable String generateValueId(IEBusValue value) {
         IEBusCommandMethod method = value.getParent();
+
+        if (method == null) {
+            return null;
+        }
+
         IEBusCommand command = method.getParent();
-        return String.format("%s_%s", generateChannelGroupID(command), formatId(value.getName()));
+
+        String name = value.getName();
+        if (name == null) {
+            return null;
+        }
+
+        return String.format("%s_%s", generateChannelGroupID(command), formatId(name));
     }
 
     /**
@@ -122,6 +145,11 @@ public class EBusBindingUtils {
         return id.replace('_', '-').replace('.', '_');
     }
 
+    /**
+     *
+     * @param collection
+     * @return
+     */
     public static String formatCollectionId(IEBusCommandCollection collection) {
         return collection.getId().replace(' ', 'o');
     }

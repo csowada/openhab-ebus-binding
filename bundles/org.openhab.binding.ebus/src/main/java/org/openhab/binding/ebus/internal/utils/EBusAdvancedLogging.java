@@ -15,8 +15,6 @@ package org.openhab.binding.ebus.internal.utils;
 import java.io.File;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import de.csdev.ebus.utils.EBusTelegramWriter;
 
@@ -28,9 +26,9 @@ import de.csdev.ebus.utils.EBusTelegramWriter;
 @NonNullByDefault
 public class EBusAdvancedLogging extends EBusTelegramWriter {
 
-    @SuppressWarnings("unused")
-    private final Logger logger = LoggerFactory.getLogger(EBusAdvancedLogging.class);
-
+    /**
+     *
+     */
     public EBusAdvancedLogging() {
         super(new File(System.getProperty("openhab.logdir")));
     }

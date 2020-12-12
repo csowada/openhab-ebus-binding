@@ -15,6 +15,7 @@ package org.openhab.binding.ebus.internal.utils;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.io.console.Console;
@@ -36,15 +37,29 @@ import de.csdev.ebus.utils.EBusUtils;
 @NonNullByDefault
 public class EBusConsoleSendReceiver extends EBusConnectorEventListener implements IEBusParserListener {
 
+    @Nullable
+    private Integer queueId;
+
     private EBusClient client;
-    private @Nullable Integer queueId;
+
     private Console console;
 
+    /**
+     *
+     * @param client
+     * @param console
+     */
     public EBusConsoleSendReceiver(EBusClient client, Console console) {
         this.client = client;
         this.console = console;
     }
 
+    /**
+     *
+     * @param data
+     * @throws EBusControllerException
+     * @throws EBusDataException
+     */
     public void send(byte[] data) throws EBusControllerException, EBusDataException {
         client.addEBusEventListener(this);
         client.addEBusParserListener(this);
@@ -53,32 +68,36 @@ public class EBusConsoleSendReceiver extends EBusConnectorEventListener implemen
         console.printf("Send telegram with id %d, waiting for response ...\n", queueId);
     }
 
+    /**
+     *
+     */
     public void dispose() {
         client.removeEBusEventListener(this);
         client.removeEBusParserListener(this);
     }
 
     @Override
-    @NonNullByDefault({})
-    public void onTelegramResolved(@Nullable IEBusCommandMethod commandChannel, @Nullable Map<String, Object> result,
-            byte @Nullable [] receivedData, @Nullable Integer sendQueueId) {
+
+    public void onTelegramResolved(@Nullable IEBusCommandMethod commandChannel,
+            @NonNull Map<@NonNull String, @NonNull Object> result, byte @Nullable [] receivedData,
+            @Nullable Integer sendQueueId) {
 
         Integer queueId = this.queueId;
         if (queueId != null && queueId.equals(sendQueueId)) {
             console.printf("Status    : Successful send %s\n", sendQueueId);
-            console.printf("Command ID: %s\n", EBusCommandUtils.getFullId(commandChannel));
+
+            if (commandChannel != null) {
+                console.printf("Command ID: %s\n", EBusCommandUtils.getFullId(commandChannel));
+            }
+
             console.printf("Telegram  : %s\n", EBusUtils.toHexDumpString(receivedData).toString());
 
-            if (result != null) {
-                console.println("");
-                console.println("Received values:");
-                for (Entry<String, @Nullable Object> entry : result.entrySet()) {
-                    if (entry != null) {
-                        Object value = entry.getValue();
-                        if (value != null) {
-                            console.println(String.format(" %s: %s", entry.getKey(), value.toString()));
-                        }
-                    }
+            console.println("");
+            console.println("Received values:");
+            for (Entry<String, Object> entry : result.entrySet()) {
+                if (entry != null) {
+                    Object value = entry.getValue();
+                    console.println(String.format(" %s: %s", entry.getKey(), value.toString()));
                 }
             }
 
@@ -93,7 +112,11 @@ public class EBusConsoleSendReceiver extends EBusConnectorEventListener implemen
         Integer queueId = this.queueId;
         if (queueId != null && queueId.equals(sendQueueId)) {
             console.printf("Status    : FAILED %s\n", sendQueueId);
-            console.printf("Command ID: %s\n", EBusCommandUtils.getFullId(commandChannel));
+
+            if (commandChannel != null) {
+                console.printf("Command ID: %s\n", EBusCommandUtils.getFullId(commandChannel));
+            }
+
             console.printf("Telegram  : %s\n", EBusUtils.toHexDumpString(receivedData).toString());
             console.printf("Error     : %s\n", exceptionMessage);
 

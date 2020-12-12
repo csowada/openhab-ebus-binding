@@ -52,9 +52,10 @@ public class EBusMetricsService {
     }
 
     public void deactivate() {
+        ScheduledFuture<?> metricsRefreshSchedule = this.metricsRefreshSchedule;
         if (metricsRefreshSchedule != null) {
             metricsRefreshSchedule.cancel(true);
-            metricsRefreshSchedule = null;
+            this.metricsRefreshSchedule = null;
         }
     }
 
@@ -86,8 +87,10 @@ public class EBusMetricsService {
                     bridge.updateState(new ChannelUID(thingUID, METRICS, UNRESOLVED_RATIO),
                             new DecimalType(metricsService.getUnresolvedRatio()));
 
-                    bridge.updateState(new ChannelUID(thingUID, METRICS, SEND_RECEIVE_ROUNDTRIP_TIME),
-                            new DecimalType((int) controller.getLastSendReceiveRoundtripTime() / 1000));
+                    if (controller != null) {
+                        bridge.updateState(new ChannelUID(thingUID, METRICS, SEND_RECEIVE_ROUNDTRIP_TIME),
+                                new DecimalType((int) controller.getLastSendReceiveRoundtripTime() / 1000));
+                    }
 
                 } catch (Exception e) {
                     logger.error("error!", e);
