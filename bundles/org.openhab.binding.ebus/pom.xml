@@ -1,46 +1,46 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-	<modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.openhab.addons.bundles</groupId>
-		<artifactId>org.openhab.addons.reactor.bundles</artifactId>
-		<version>2.5.11-SNAPSHOT</version>
-	</parent>
+  <parent>
+    <groupId>org.openhab.addons.bundles</groupId>
+    <artifactId>org.openhab.addons.reactor.bundles</artifactId>
+    <version>2.5.9-SNAPSHOT</version>
+  </parent>
 
-	<properties>
-		<ebus.core.version>1.1.0</ebus.core.version>
-		<ebus.config.version>1.1.0</ebus.config.version>
-	</properties>
+  <properties>
+    <ebus.core.version>1.1.0</ebus.core.version>
+    <ebus.config.version>1.1.0</ebus.config.version>
+  </properties>
 
-	<artifactId>org.openhab.binding.ebus</artifactId>
+  <artifactId>org.openhab.binding.ebus</artifactId>
 
-	<name>openHAB Add-ons :: Bundles :: eBUS Binding</name>
+  <name>openHAB Add-ons :: Bundles :: eBUS Binding</name>
 
-	<dependencies>
-		<dependency>
-			<groupId>de.cs-dev.ebus</groupId>
-			<artifactId>ebus-core</artifactId>
-			<version>${ebus.core.version}</version>
-<!-- 			<scope>provided</scope> -->
-		</dependency>
+  <dependencies>
+    <dependency>
+      <groupId>de.cs-dev.ebus</groupId>
+      <artifactId>ebus-core</artifactId>
+      <version>${ebus.core.version}</version>
+      <!-- <scope>provided</scope> -->
+    </dependency>
 
-		<dependency>
-			<groupId>de.cs-dev.ebus</groupId>
-			<artifactId>ebus-configuration</artifactId>
-			<version>${ebus.config.version}</version>
-<!-- 			<scope>provided</scope> -->
-		</dependency>
+    <dependency>
+      <groupId>de.cs-dev.ebus</groupId>
+      <artifactId>ebus-configuration</artifactId>
+      <version>${ebus.config.version}</version>
+      <!-- <scope>provided</scope> -->
+    </dependency>
 
-		<dependency>
-			<groupId>com.fazecast</groupId>
-			<artifactId>jSerialComm</artifactId>
-			<version>2.6.2</version>
-			<!-- <scope>provided</scope> -->
-		</dependency>
+    <dependency>
+      <groupId>com.fazecast</groupId>
+      <artifactId>jSerialComm</artifactId>
+      <version>2.6.2</version>
+      <!-- <scope>provided</scope> -->
+    </dependency>
 
-	</dependencies>
+  </dependencies>
 
 </project>
