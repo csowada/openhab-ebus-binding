@@ -17,6 +17,7 @@ import static org.openhab.binding.ebus.internal.EBusBindingConstants.BINDING_ID;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -58,31 +59,19 @@ public class EBusHandlerFactory extends BaseThingHandlerFactory {
 
     private Map<ThingUID, @Nullable ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
 
+    @NonNullByDefault({})
     @Reference(cardinality = ReferenceCardinality.MANDATORY)
-    private @NonNullByDefault({}) IEBusTypeProvider typeProvider;
+    private IEBusTypeProvider typeProvider;
 
+    @NonNullByDefault({})
     @Reference
-    private @NonNullByDefault({}) SerialPortManager serialPortManager;
-
-    // public IEBusTypeProvider getEBusTypeProvider() {
-    // return typeProvider;
-    // }
-
-    // @Reference
-    // protected void setSerialPortManager(final SerialPortManager serialPortManager) {
-    // this.serialPortManager = serialPortManager;
-    // }
-    //
-    // protected void unsetSerialPortManager(final SerialPortManager serialPortManager) {
-    // this.serialPortManager = null;
-    // }
+    private SerialPortManager serialPortManager;
 
     public SerialPortManager getSerialPortManager() {
-        return serialPortManager;
+        return Objects.requireNonNull(serialPortManager, "serialPortManager");
     }
 
     @Override
-    // @Activate
     protected void activate(ComponentContext componentContext) {
 
         super.activate(componentContext);
@@ -125,7 +114,7 @@ public class EBusHandlerFactory extends BaseThingHandlerFactory {
     public synchronized void registerDiscoveryService(EBusBridgeHandler bridgeHandler) {
         EBusDiscoveryService discoveryService = new EBusDiscoveryService(bridgeHandler);
 
-        Hashtable<String, Object> hashtable = new Hashtable<String, Object>();
+        Hashtable<@Nullable String, @Nullable Object> hashtable = new Hashtable<@Nullable String, @Nullable Object>();
         hashtable.put("service.pid", "discovery.ebus");
 
         ServiceRegistration<?> service = bundleContext.registerService(DiscoveryService.class.getName(),

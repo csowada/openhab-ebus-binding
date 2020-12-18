@@ -58,11 +58,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.csdev.ebus.client.EBusClient;
+import de.csdev.ebus.command.EBusCommandException;
 import de.csdev.ebus.command.IEBusCommandCollection;
 import de.csdev.ebus.command.IEBusCommandMethod;
 import de.csdev.ebus.command.datatypes.EBusTypeException;
 import de.csdev.ebus.core.EBusConsts;
 import de.csdev.ebus.core.EBusControllerException;
+import de.csdev.ebus.core.IEBusController;
 import de.csdev.ebus.core.IEBusController.ConnectionStatus;
 import de.csdev.ebus.utils.EBusDateTime;
 import de.csdev.ebus.utils.EBusUtils;
@@ -83,8 +85,6 @@ public class EBusHandler extends BaseThingHandler {
     private Random random = new Random(12);
 
     private Map<ByteBuffer, ScheduledFuture<?>> uniqueTelegramPollings = new HashMap<>();
-
-    // private @Nullable EBusHandlerConfiguration configuration;
 
     /**
      * @param thing
@@ -272,6 +272,8 @@ public class EBusHandler extends BaseThingHandler {
 
         } catch (EBusTypeException e) {
             logger.error("error!", e);
+        } catch (EBusCommandException e) {
+            logger.error("error!", e);
         }
 
         return null;
@@ -294,7 +296,7 @@ public class EBusHandler extends BaseThingHandler {
             return handler.getLibClient();
         }
 
-        throw new RuntimeException("Unabke to get a eBUS Client from Backend");
+        throw new RuntimeException("Unable to get a eBUS Client from Backend");
     }
 
     /*
@@ -316,7 +318,7 @@ public class EBusHandler extends BaseThingHandler {
                     if (telegram != null) {
                         getLibClient().sendTelegram(telegram);
                     }
-                } catch (EBusTypeException | EBusControllerException e) {
+                } catch (EBusTypeException | EBusControllerException | EBusCommandException e) {
                     logger.error("error!", e);
                 }
 
@@ -428,9 +430,9 @@ public class EBusHandler extends BaseThingHandler {
                             EBusUtils.toHexDumpString(telegram).toString());
 
                     try {
+                        IEBusController controller = libClient.getController();
                         EBusClient client = libClient.getClient();
-                        if (client.getController() != null
-                                && client.getController().getConnectionStatus() == ConnectionStatus.CONNECTED) {
+                        if (controller != null && controller.getConnectionStatus() == ConnectionStatus.CONNECTED) {
                             client.addToSendQueue(EBusUtils.toByteArray(telegram), 2);
                         } else {
                             logger.trace("Unable to send polling command due to a unconnected controller");
@@ -443,11 +445,14 @@ public class EBusHandler extends BaseThingHandler {
 
                 }, firstExecutionDelay, pollingPeriod, TimeUnit.SECONDS);
 
-                // add this job to global list, so we can stop all later on.
-                uniqueTelegramPollings.put(telegram, job);
+                if (job != null) {
+                    // add this job to global list, so we can stop all later on.
+                    uniqueTelegramPollings.put(telegram, job);
 
-                logger.info("Register polling for \"{}\" every {} sec. (initial delay {} sec.)", commandId,
-                        pollingPeriod, firstExecutionDelay);
+                    logger.info("Register polling for \"{}\" every {} sec. (initial delay {} sec.)", commandId,
+                            pollingPeriod, firstExecutionDelay);
+                }
+
             } else {
 
                 logger.info("Raw telegram already in use for polling, skip addition polling for \"{}\"!",

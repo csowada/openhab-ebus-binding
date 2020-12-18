@@ -16,6 +16,7 @@ import static org.openhab.binding.ebus.internal.EBusBindingConstants.*;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -31,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.csdev.ebus.client.EBusClient;
+import de.csdev.ebus.command.EBusCommandException;
 import de.csdev.ebus.command.EBusCommandRegistry;
 import de.csdev.ebus.command.IEBusCommandMethod;
 import de.csdev.ebus.command.IEBusCommandMethod.Method;
@@ -56,11 +58,9 @@ public class EBusClientBridge {
 
     private final Logger logger = LoggerFactory.getLogger(EBusClientBridge.class);
 
-    @Nullable
-    private IEBusController controller;
+    private @Nullable IEBusController controller;
 
-    @Nullable
-    private IEBusConnection connection;
+    private @Nullable IEBusConnection connection;
 
     private EBusClient client;
 
@@ -76,12 +76,19 @@ public class EBusClientBridge {
      * @param port
      */
     public void setTCPConnection(String hostname, int port) {
-        connection = new EBusTCPConnection(hostname, port);
+
+        IEBusConnection conn = new EBusTCPConnection(hostname, port);
 
         // load the eBus core element
-        controller = new EBusLowLevelController(connection);
+        controller = new EBusLowLevelController(conn);
+        this.connection = conn;
     }
 
+    /**
+     *
+     * @param hostname
+     * @param port
+     */
     public void setEbusdConnection(String hostname, int port) {
         logger.debug("Set ebusd controller ...");
         controller = new EBusEbusdController(hostname, port);
@@ -91,21 +98,29 @@ public class EBusClientBridge {
      * @param serialPort
      */
     public void setSerialConnection(String serialPort, String type) {
+
+        IEBusConnection conn = null;
+
         if (StringUtils.equals(serialPort, "emulator")) {
-            connection = new EBusEmulatorConnection();
+            conn = new EBusEmulatorConnection();
 
         } else {
             if (StringUtils.equals(type, DRIVER_JSERIALCOMM)) {
-                connection = new EBusJSerialCommConnection(serialPort);
+                conn = new EBusJSerialCommConnection(serialPort);
             } else {
-                connection = new EBusSerialNRJavaSerialConnection(serialPort);
+                conn = new EBusSerialNRJavaSerialConnection(serialPort);
             }
         }
 
         // load the eBus core element
-        controller = new EBusLowLevelController(connection);
+        controller = new EBusLowLevelController(conn);
+        this.connection = conn;
     }
 
+    /**
+     *
+     * @param connection
+     */
     public void setSerialConnection(IEBusConnection connection) {
         // load the eBus core element
         this.connection = connection;
@@ -117,6 +132,11 @@ public class EBusClientBridge {
      */
     public EBusClient getClient() {
         return client;
+    }
+
+    public @Nullable IEBusController getController() {
+        IEBusController controller = client.getController();
+        return controller;
     }
 
     /**
@@ -136,7 +156,8 @@ public class EBusClientBridge {
      * @throws EBusControllerException
      */
     public Integer sendTelegram(ByteBuffer telegram) throws EBusControllerException {
-        return client.addToSendQueue(EBusUtils.toByteArray(telegram));
+        byte[] byteArray = EBusUtils.toByteArray(telegram);
+        return client.addToSendQueue(byteArray);
     }
 
     /**
@@ -154,27 +175,34 @@ public class EBusClientBridge {
      * @param command
      * @return
      * @throws EBusTypeException
+     * @throws EBusCommandException
      */
     @Nullable
-    public ByteBuffer generateSetterTelegram(Thing thing, Channel channel, Command command) throws EBusTypeException {
+    public ByteBuffer generateSetterTelegram(Thing thing, Channel channel, Command command)
+            throws EBusTypeException, EBusCommandException {
         String slaveAddress = (String) thing.getConfiguration().get(EBusBindingConstants.SLAVE_ADDRESS);
         String collectionId = thing.getThingTypeUID().getId();
-        String commandId = channel.getProperties().get(COMMAND);
-        String valueName = channel.getProperties().get(VALUE_NAME);
+
+        Map<String, String> properties = channel.getProperties();
+
+        String commandId = properties.getOrDefault(COMMAND, "");
+        String valueName = properties.get(VALUE_NAME);
 
         if (StringUtils.isEmpty(commandId) || StringUtils.isEmpty(valueName)) {
-            logger.error("Channel has no additional eBUS information!");
-            return null;
+            throw new EBusCommandException("Channel has no additional eBUS information!");
         }
 
-        byte target = EBusUtils.toByte(slaveAddress);
+        Byte target = EBusUtils.toByte(slaveAddress);
+
+        if (target == null) {
+            throw new EBusCommandException("");
+        }
 
         IEBusCommandMethod commandMethod = client.getConfigurationProvider().getCommandMethodById(collectionId,
                 commandId, Method.SET);
 
         if (commandMethod == null) {
-            logger.error("Unable to find setter command with id {}", commandId);
-            return null;
+            throw new EBusCommandException(String.format("Unable to find setter command with id %s", commandId));
         }
 
         // use master address for master-master telegrams
@@ -200,9 +228,11 @@ public class EBusClientBridge {
                     values.put(valueName, decimalValue.toBigDecimal());
                 }
             } else {
-                DecimalType decimalValue = new DecimalType(state.toString());
-                values.put(valueName, decimalValue.toBigDecimal());
-
+                String stateValue = state.toString();
+                if (stateValue != null) {
+                    DecimalType decimalValue = new DecimalType(stateValue);
+                    values.put(valueName, decimalValue.toBigDecimal());
+                }
             }
         }
 
@@ -216,31 +246,33 @@ public class EBusClientBridge {
      * @param targetThing
      * @return
      * @throws EBusTypeException
+     * @throws EBusCommandException
      */
     @Nullable
     public ByteBuffer generatePollingTelegram(String collectionId, String commandId, IEBusCommandMethod.Method type,
-            Thing targetThing) throws EBusTypeException {
+            Thing targetThing) throws EBusTypeException, EBusCommandException {
         String slaveAddress = (String) targetThing.getConfiguration().get(EBusBindingConstants.SLAVE_ADDRESS);
 
         IEBusCommandMethod commandMethod = client.getConfigurationProvider().getCommandMethodById(collectionId,
                 commandId, type);
 
         if (commandMethod == null) {
-            logger.error("Unable to find command method {} {} {} !", type, commandId, collectionId);
-            return null;
+            throw new EBusCommandException("Unable to find command method {} {} {} !", type, commandId, collectionId);
         }
 
         if (!commandMethod.getType().equals(IEBusCommandMethod.Type.MASTER_SLAVE)) {
-            logger.warn("Polling is only available for master-slave commands!");
-            return null;
+            throw new EBusCommandException("Polling is only available for master-slave commands!");
         }
 
         if (StringUtils.isEmpty(slaveAddress)) {
-            logger.warn("Unable to poll, Thing has no slave address defined!");
-            return null;
+            throw new EBusCommandException("Unable to poll, Thing has no slave address defined!");
         }
 
-        byte target = EBusUtils.toByte(slaveAddress);
+        Byte target = EBusUtils.toByte(slaveAddress);
+
+        if (target == null) {
+            throw new EBusCommandException("Unable to convert slave address to byte!");
+        }
 
         return client.buildTelegram(commandMethod, target, null);
     }
@@ -250,13 +282,17 @@ public class EBusClientBridge {
      */
     public void initClient(Byte masterAddress) {
         // connect the high level client
-        client.connect(controller, masterAddress);
+        IEBusController controller = this.controller;
+        if (controller != null) {
+            client.connect(controller, masterAddress);
+        }
     }
 
     /**
      *
      */
     public void startClient() {
+        IEBusController controller = this.controller;
         if (controller != null) {
             controller.start();
         }
@@ -265,8 +301,8 @@ public class EBusClientBridge {
     /**
      *
      */
-    @SuppressWarnings("null")
     public void stopClient() {
+        IEBusController controller = this.controller;
         if (controller != null && !controller.isInterrupted()) {
             controller.interrupt();
         }

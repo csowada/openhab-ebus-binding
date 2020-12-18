@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.Bridge;
@@ -144,7 +145,8 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
             serialPort = configuration.serialPort;
             serialPortDriver = configuration.serialPortDriver;
 
-            if (configuration.advancedLogging != null && configuration.advancedLogging.equals(Boolean.TRUE)) {
+            Boolean advancedLogging = configuration.advancedLogging;
+            if (advancedLogging != null && advancedLogging.equals(Boolean.TRUE)) {
                 logger.warn("Enable advanced logging for eBUS commands!");
                 advanceLogger = new EBusAdvancedLogging();
             }
@@ -201,6 +203,7 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
         clientBridge.initClient(masterAddress);
 
         // add before other listeners, better to read in logs
+        EBusAdvancedLogging advanceLogger = this.advanceLogger;
         if (advanceLogger != null) {
             clientBridge.getClient().addEBusParserListener(advanceLogger);
         }
@@ -217,7 +220,6 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
         clientBridge.startClient();
     }
 
-    @SuppressWarnings("null")
     @Override
     public void dispose() {
 
@@ -225,10 +227,14 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
 
         metricsService.deactivate();
 
+        EBusAdvancedLogging advanceLogger = this.advanceLogger;
         if (advanceLogger != null) {
+
             clientBridge.getClient().removeEBusParserListener(advanceLogger);
+
             advanceLogger.close();
-            advanceLogger = null;
+            this.advanceLogger = null;
+
         }
 
         // remove discovery service
@@ -247,8 +253,9 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
      */
     @Override
     @NonNullByDefault({})
-    public void onTelegramResolved(@Nullable IEBusCommandMethod commandChannel, Map<String, Object> result,
-            byte @Nullable [] receivedData, @Nullable Integer sendQueueId) {
+    public void onTelegramResolved(@Nullable IEBusCommandMethod commandChannel,
+            @NonNull Map<@NonNull String, @NonNull Object> result, byte @Nullable [] receivedData,
+            @Nullable Integer sendQueueId) {
 
         boolean noHandler = true;
 

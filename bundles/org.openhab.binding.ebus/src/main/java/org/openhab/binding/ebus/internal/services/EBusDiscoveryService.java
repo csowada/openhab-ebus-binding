@@ -120,7 +120,6 @@ public class EBusDiscoveryService extends AbstractDiscoveryService implements IE
      * @param collection
      */
     private void updateDiscoveredThing(IEBusDevice device, IEBusCommandCollection collection) {
-
         String masterAddress = EBusUtils.toHexDumpString(device.getMasterAddress());
         String slaveAddress = EBusUtils.toHexDumpString(device.getSlaveAddress());
 
@@ -157,27 +156,26 @@ public class EBusDiscoveryService extends AbstractDiscoveryService implements IE
 
     @Override
     public void onEBusDeviceUpdate(@Nullable TYPE type, @Nullable IEBusDevice device) {
-
         if (device != null && type != null && !type.equals(TYPE.UPDATE_ACTIVITY)) {
-
             if (!disableDiscovery) {
-
                 EBusClient client = bridgeHandle.getLibClient().getClient();
 
                 Collection<IEBusCommandCollection> commandCollections = client.getCommandCollections();
                 IEBusCommandCollection commonCollection = client.getCommandCollection(EBusConsts.COLLECTION_STD);
 
-                // update common thing
-                updateDiscoveredThing(device, commonCollection);
+                if (commonCollection != null) {
+                    // update common thing
+                    updateDiscoveredThing(device, commonCollection);
 
-                // search for collection with device id
-                String deviceStr = EBusUtils.toHexDumpString(device.getDeviceId()).toString();
-                for (final IEBusCommandCollection collection : commandCollections) {
-                    if (collection.getIdentification().contains(deviceStr)) {
-                        logger.debug("Discovered eBUS device {} ...", collection.getId());
+                    // search for collection with device id
+                    String deviceStr = EBusUtils.toHexDumpString(device.getDeviceId()).toString();
+                    for (final IEBusCommandCollection collection : commandCollections) {
+                        if (collection.getIdentification().contains(deviceStr)) {
+                            logger.debug("Discovered eBUS device {} ...", collection.getId());
 
-                        updateDiscoveredThing(device, collection);
+                            updateDiscoveredThing(device, collection);
 
+                        }
                     }
                 }
             }
@@ -194,7 +192,6 @@ public class EBusDiscoveryService extends AbstractDiscoveryService implements IE
      * @param device
      */
     private void updateInitializedThings(IEBusDevice device) {
-
         String deviceSlaveAddress = EBusUtils.toHexDumpString(device.getSlaveAddress());
 
         for (Thing thing : bridgeHandle.getThing().getThings()) {
@@ -215,7 +212,6 @@ public class EBusDiscoveryService extends AbstractDiscoveryService implements IE
      * @param properties
      */
     private void updateThingProperties(IEBusDevice device, Map<String, String> properties) {
-
         if (device.getDeviceId() != null && device.getDeviceId().length == 5) {
             properties.put(Thing.PROPERTY_MODEL_ID, EBusUtils.toHexDumpString(device.getDeviceId()).toString());
         } else {

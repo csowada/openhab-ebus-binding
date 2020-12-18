@@ -40,7 +40,8 @@ public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
     private final Logger logger = LoggerFactory.getLogger(EBusSerialBuildInSerialConnection.class);
 
     /** The serial object */
-    private @Nullable SerialPort serialPort;
+    @Nullable
+    private SerialPort serialPort;
 
     /** The serial port name */
     private String port;
@@ -57,7 +58,6 @@ public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
      *
      * @see de.csdev.ebus.core.connection.IEBusConnection#open()
      */
-    @SuppressWarnings("null")
     @Override
     public boolean open() throws IOException {
         try {
@@ -69,7 +69,7 @@ public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
                 logger.info(
                         "Use openhab build-in serial driver .................................................................");
 
-                serialPort = portIdentifier.open(this.getClass().getName(), 3000);
+                SerialPort serialPort = portIdentifier.open(this.getClass().getName(), 3000);
                 serialPort.setSerialPortParams(2400, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
                         SerialPort.PARITY_NONE);
 
@@ -98,6 +98,7 @@ public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
 
                 serialPort.notifyOnDataAvailable(true);
 
+                this.serialPort = serialPort;
                 return true;
             }
 
@@ -111,7 +112,6 @@ public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
             logger.error("Too many listeners error!", e);
         }
 
-        serialPort = null;
         return false;
     }
 
@@ -129,7 +129,7 @@ public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
         // run the serial.close in a new not-interrupted thread to
         // prevent an IllegalMonitorStateException error
         Thread shutdownThread = new Thread(new Runnable() {
-            @SuppressWarnings("null")
+
             @Override
             public void run() {
 
@@ -143,13 +143,15 @@ public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
                     IOUtils.closeQuietly(outputStream);
                 }
 
+                SerialPort serialPort = EBusSerialBuildInSerialConnection.this.serialPort;
+
                 if (serialPort != null) {
 
                     serialPort.notifyOnDataAvailable(false);
                     serialPort.removeEventListener();
 
                     serialPort.close();
-                    serialPort = null;
+                    EBusSerialBuildInSerialConnection.this.serialPort = null;
                 }
 
                 inputStream = null;

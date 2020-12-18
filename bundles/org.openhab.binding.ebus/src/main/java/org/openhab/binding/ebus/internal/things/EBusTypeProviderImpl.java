@@ -15,6 +15,7 @@ package org.openhab.binding.ebus.internal.things;
 import static org.openhab.binding.ebus.internal.EBusBindingConstants.*;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -90,8 +91,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
 
     private final Logger logger = LoggerFactory.getLogger(EBusTypeProviderImpl.class);
 
-    @Nullable
-    private EBusCommandRegistry commandRegistry;
+    private @Nullable EBusCommandRegistry commandRegistry;
 
     @Reference(cardinality = ReferenceCardinality.OPTIONAL)
     private @Nullable ConfigurationAdmin configurationAdmin;
@@ -107,7 +107,14 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
         logger.trace("Loading eBUS Type Provider ...");
 
         commandRegistry = new EBusCommandRegistry(EBusConfigurationReaderExt.class, false);
-        updateConfiguration(componentContext.getProperties());
+        try {
+            Dictionary<String, Object> properties = componentContext.getProperties();
+            if (properties != null) {
+                updateConfiguration(properties);
+            }
+        } catch (EBusTypeProviderException e) {
+            logger.error("error!", e);
+        }
     }
 
     /**
@@ -115,9 +122,11 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
      * @param mainChannel
      * @param value
      * @return
+     * @throws EBusTypeProviderException
      */
     @Nullable
-    private ChannelDefinition createChannelDefinition(IEBusCommandMethod mainMethod, IEBusValue value) {
+    private ChannelDefinition createChannelDefinition(IEBusCommandMethod mainMethod, IEBusValue value)
+            throws EBusTypeProviderException {
 
         ChannelType channelType = createChannelType(value, mainMethod);
 
@@ -126,15 +135,21 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
             logger.trace("Add channel {} for method {}", channelType.getUID(), mainMethod.getMethod());
 
             // add to global list
-            channelTypes.put(channelType.getUID(), channelType);
+            ChannelTypeUID channelTypeUID = channelType.getUID();
+            channelTypes.put(channelTypeUID, channelType);
+
+            String name = value.getName();
+            if (name == null) {
+                throw new EBusTypeProviderException("Unable to get name from value!");
+            }
 
             // store command id and value name
             Map<String, String> properties = new HashMap<String, String>();
             properties.put(COMMAND, mainMethod.getParent().getId());
-            properties.put(VALUE_NAME, value.getName());
+            properties.put(VALUE_NAME, name);
 
-            String id = EBusBindingUtils.formatId(value.getName());
-            ChannelDefinitionBuilder builder = new ChannelDefinitionBuilder(id, channelType.getUID());
+            String id = EBusBindingUtils.formatId(name);
+            ChannelDefinitionBuilder builder = new ChannelDefinitionBuilder(id, channelTypeUID);
 
             return builder.withProperties(properties).withLabel(value.getLabel()).build();
         }
@@ -142,23 +157,38 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
         return null;
     }
 
+    private <T> T nullCheck(@Nullable T value) throws EBusTypeProviderException {
+
+        if (value == null) {
+            throw new EBusTypeProviderException("xxxxx");
+        }
+
+        return value;
+    }
+
     /**
      * @param command
      * @param channelDefinitions
      * @return
+     * @throws EBusTypeProviderException
      */
     private ChannelGroupDefinition createChannelGroupDefinition(IEBusCommand command,
-            List<ChannelDefinition> channelDefinitions) {
+            List<ChannelDefinition> channelDefinitions) throws EBusTypeProviderException {
 
         ChannelGroupTypeUID groupTypeUID = EBusBindingUtils.generateChannelGroupTypeUID(command);
 
-        ChannelGroupType cgt = ChannelGroupTypeBuilder
-                .instance(groupTypeUID, StringUtils.defaultIfEmpty(command.getLabel(), "-undefined-")).isAdvanced(false)
+        String label = StringUtils.defaultIfEmpty(command.getLabel(), "-undefined-");
+
+        if (label == null) {
+            throw new EBusTypeProviderException("Unable to generate label!");
+        }
+
+        ChannelGroupType cgt = ChannelGroupTypeBuilder.instance(groupTypeUID, label).isAdvanced(false)
                 .withCategory(command.getId()).withChannelDefinitions(channelDefinitions).withDescription("HVAC")
                 .build();
 
         // add to global list
-        channelGroupTypes.put(cgt.getUID(), cgt);
+        channelGroupTypes.put(nullCheck(cgt.getUID()), cgt);
 
         String cgdid = EBusBindingUtils.generateChannelGroupID(command);
 
@@ -169,12 +199,15 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
      * @param value
      * @param mainChannel
      * @return
+     * @throws EBusTypeProviderException
      */
     @Nullable
-    private ChannelType createChannelType(IEBusValue value, IEBusCommandMethod mainMethod) {
+    private ChannelType createChannelType(IEBusValue value, IEBusCommandMethod mainMethod)
+            throws EBusTypeProviderException {
 
         // only process valid entries
-        if (StringUtils.isNotEmpty(value.getName()) && StringUtils.isNotEmpty(mainMethod.getParent().getId())) {
+        String name = value.getName();
+        if (name != null && StringUtils.isNotEmpty(name) && StringUtils.isNotEmpty(mainMethod.getParent().getId())) {
 
             ChannelTypeUID uid = EBusBindingUtils.generateChannelTypeUID(value);
 
@@ -185,10 +218,12 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
 
             // create a option list if mapping is used
             List<StateOption> options = null;
-            if (value.getMapping() != null && !value.getMapping().isEmpty()) {
+            Map<String, String> mappings = value.getMapping();
+
+            if (mappings != null && !mappings.isEmpty()) {
                 options = new ArrayList<StateOption>();
-                for (Entry<String, String> mapping : value.getMapping().entrySet()) {
-                    options.add(new StateOption(mapping.getKey(), mapping.getValue()));
+                for (Entry<String, String> entry : mappings.entrySet()) {
+                    options.add(new StateOption(entry.getKey(), entry.getValue()));
                 }
             }
 
@@ -219,13 +254,31 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
                 itemType = EBusBindingConstants.ITEM_TYPE_STRING;
             }
 
-            boolean advanced = value.getName().startsWith("_");
+            boolean advanced = name.startsWith("_");
             String label = StringUtils.defaultIfEmpty(value.getLabel(), value.getName());
             String pattern = value.getFormat();
 
             StateDescriptionFragmentBuilder stateBuilder = StateDescriptionFragmentBuilder.create()
-                    .withMinimum(value.getMin()).withMaximum(value.getMax()).withStep(value.getStep())
-                    .withPattern(pattern).withReadOnly(readOnly);
+                    .withReadOnly(readOnly);
+
+            BigDecimal val = value.getMin();
+            if (val != null) {
+                stateBuilder.withMinimum(val);
+            }
+
+            val = value.getMax();
+            if (val != null) {
+                stateBuilder.withMaximum(val);
+            }
+
+            val = value.getStep();
+            if (val != null) {
+                stateBuilder.withStep(val);
+            }
+
+            if (pattern != null) {
+                stateBuilder.withPattern(pattern);
+            }
 
             if (options != null) {
                 stateBuilder.withOptions(options);
@@ -246,6 +299,10 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
                 logger.warn("Label type for {}/{} is undefined!", uid, label);
             }
 
+            if (label == null) {
+                throw new EBusTypeProviderException("No label available!");
+            }
+
             return ChannelTypeBuilder.state(uid, label, itemType).withConfigDescriptionURI(configDescriptionURI)
                     .isAdvanced(advanced).withStateDescription(state).build();
         }
@@ -258,24 +315,40 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
      * @param channelDefinitions
      * @param channelGroupDefinitions
      * @return
+     * @throws EBusTypeProviderException
      */
     private ThingType createThingType(IEBusCommandCollection collection,
             @Nullable ArrayList<ChannelDefinition> channelDefinitions,
-            List<ChannelGroupDefinition> channelGroupDefinitions) {
+            List<ChannelGroupDefinition> channelGroupDefinitions) throws EBusTypeProviderException {
 
         ThingTypeUID thingTypeUID = EBusBindingUtils.generateThingTypeUID(collection);
 
         String label = collection.getLabel();
+
+        if (label == null) {
+            throw new EBusTypeProviderException("No label for collection available!");
+        }
+
         String description = collection.getDescription();
 
         Map<String, String> properties = new HashMap<String, String>();
-        properties.put("collectionHash", java.lang.String.valueOf(collection.hashCode()));
+
+        String hash = String.valueOf(collection.hashCode());
+
+        if (hash == null) {
+            throw new EBusTypeProviderException("Unable to generate hash!");
+        }
+
+        properties.put("collectionHash", hash);
 
         ThingTypeBuilder builder = ThingTypeBuilder.instance(thingTypeUID, label)
                 .withSupportedBridgeTypeUIDs(supportedBridgeTypeUIDs)
                 .withChannelGroupDefinitions(channelGroupDefinitions)
-                .withConfigDescriptionURI(CONFIG_DESCRIPTION_URI_NODE).withDescription(description)
-                .withProperties(properties);
+                .withConfigDescriptionURI(CONFIG_DESCRIPTION_URI_NODE).withProperties(properties);
+
+        if (description != null) {
+            builder.withDescription(description);
+        }
 
         if (channelDefinitions != null) {
             builder.withChannelDefinitions(channelDefinitions);
@@ -341,13 +414,17 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
     }
 
     @Override
-    public boolean reload() {
+    public boolean reload() throws EBusTypeProviderException {
 
         try {
             ConfigurationAdmin configurationAdmin = this.configurationAdmin;
             if (configurationAdmin != null) {
                 Configuration configuration = configurationAdmin.getConfiguration(BINDING_PID, null);
-                updateConfiguration(configuration.getProperties());
+
+                Dictionary<String, Object> properties = configuration.getProperties();
+                if (properties != null && !properties.isEmpty()) {
+                    updateConfiguration(properties);
+                }
             }
             return true;
 
@@ -359,7 +436,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
     }
 
     @Override
-    public void update(List<IEBusCommandCollection> collections) {
+    public void update(List<IEBusCommandCollection> collections) throws EBusTypeProviderException {
 
         for (IEBusCommandCollection collection : collections) {
             if (StringUtils.isNotEmpty(collection.getId())) {
@@ -372,8 +449,9 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
 
     /**
      * @param collection
+     * @throws EBusTypeProviderException
      */
-    private void updateCollection(IEBusCommandCollection collection) {
+    private void updateCollection(IEBusCommandCollection collection) throws EBusTypeProviderException {
 
         // don't add empty command collections, in most cases template files
         if (collection.getCommands().isEmpty()) {
@@ -408,19 +486,22 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
 
             if (mainMethod != null) {
 
-                if (mainMethod.getMasterTypes() != null && !mainMethod.getMasterTypes().isEmpty()) {
-                    list.addAll(mainMethod.getMasterTypes());
+                List<IEBusValue> masterTypes = mainMethod.getMasterTypes();
+                if (masterTypes != null && !masterTypes.isEmpty()) {
+                    list.addAll(masterTypes);
                 }
 
-                if (mainMethod.getSlaveTypes() != null && !mainMethod.getSlaveTypes().isEmpty()) {
-                    list.addAll(mainMethod.getSlaveTypes());
+                List<IEBusValue> slaveTypes = mainMethod.getSlaveTypes();
+                if (slaveTypes != null && !slaveTypes.isEmpty()) {
+                    list.addAll(slaveTypes);
                 }
 
                 // now check for nested values
                 List<IEBusValue> childList = new ArrayList<IEBusValue>();
                 for (IEBusValue value : list) {
                     if (value instanceof IEBusNestedValue) {
-                        childList.addAll(((IEBusNestedValue) value).getChildren());
+                        IEBusNestedValue val = (IEBusNestedValue) value;
+                        childList.addAll(val.getChildren());
                     }
                 }
                 list.addAll(childList);
@@ -474,7 +555,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
         return null;
     }
 
-    private void updateConfiguration(@Nullable Dictionary<String, ?> properties) {
+    private void updateConfiguration(@Nullable Dictionary<String, ?> properties) throws EBusTypeProviderException {
 
         if (properties == null) {
             return;

@@ -31,16 +31,15 @@ import org.eclipse.smarthome.io.console.Console;
 import org.eclipse.smarthome.io.console.extensions.ConsoleCommandExtension;
 import org.openhab.binding.ebus.internal.handler.EBusBridgeHandler;
 import org.openhab.binding.ebus.internal.handler.EBusHandler;
+import org.openhab.binding.ebus.internal.things.EBusTypeProviderException;
 import org.openhab.binding.ebus.internal.things.IEBusTypeProvider;
-import org.osgi.service.component.ComponentContext;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import de.csdev.ebus.client.EBusClient;
+import de.csdev.ebus.command.EBusCommandRegistry;
 import de.csdev.ebus.command.IEBusCommandCollection;
 import de.csdev.ebus.core.EBusControllerException;
 import de.csdev.ebus.core.EBusDataException;
@@ -76,47 +75,13 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
 
     private static final String SUBCMD_CHANNELS = "channels";
 
-    @Nullable
+    @NonNullByDefault({})
+    @Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
     private ThingRegistry thingRegistry;
 
-    @Nullable
+    @NonNullByDefault({})
+    @Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
     private IEBusTypeProvider typeProvider;
-
-    /**
-     * Activating this component - called from DS.
-     *
-     * @param componentContext
-     */
-    @Activate
-    protected void activate(ComponentContext componentContext) {
-        // noop
-    }
-
-    /**
-     * Deactivating this component - called from DS.
-     */
-    @Deactivate
-    protected void deactivate(ComponentContext componentContext) {
-        // noop
-    }
-
-    @Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
-    protected void setThingRegistry(ThingRegistry thingRegistry) {
-        this.thingRegistry = thingRegistry;
-    }
-
-    @Reference(policy = ReferencePolicy.STATIC, cardinality = ReferenceCardinality.MANDATORY)
-    public void setTypeProvider(IEBusTypeProvider typeProvider) {
-        this.typeProvider = typeProvider;
-    }
-
-    public void unsetTypeProvider(IEBusTypeProvider typeProvider) {
-        this.typeProvider = null;
-    }
-
-    protected void unsetThingRegistry(ThingRegistry thingRegistry) {
-        this.thingRegistry = null;
-    }
 
     @Override
     public String getCommand() {
@@ -150,44 +115,40 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
     }
 
     private void listChannels(String[] args, Console console) {
-        IEBusTypeProvider typeProvider = this.typeProvider;
-        if (typeProvider != null) {
+        Collection<ThingType> thingTypes = typeProvider.getThingTypes(null);
 
-            Collection<ThingType> thingTypes = typeProvider.getThingTypes(null);
+        for (ThingType thingType : thingTypes) {
+            String format = String.format("** %-45s | ID: %-20s **", "Type: " + thingType.getLabel(),
+                    thingType.getUID().getId());
 
-            for (ThingType thingType : thingTypes) {
-                String format = String.format("** %-45s | ID: %-20s **", "Type: " + thingType.getLabel(),
-                        thingType.getUID().getId());
+            console.println("");
+            console.println(StringUtils.repeat("*", format.length()));
+            console.println(format);
+            console.println(StringUtils.repeat("*", format.length()));
 
-                console.println("");
-                console.println(StringUtils.repeat("*", format.length()));
-                console.println(format);
-                console.println(StringUtils.repeat("*", format.length()));
+            List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
+            for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
 
-                List<ChannelGroupDefinition> channelGroupDefinitions = thingType.getChannelGroupDefinitions();
-                for (ChannelGroupDefinition channelGroupDefinition : channelGroupDefinitions) {
+                if (typeProvider != null) {
 
-                    if (typeProvider != null) {
+                    ChannelGroupType channelGroupType = typeProvider
+                            .getChannelGroupType(channelGroupDefinition.getTypeUID(), null);
 
-                        ChannelGroupType channelGroupType = typeProvider
-                                .getChannelGroupType(channelGroupDefinition.getTypeUID(), null);
+                    if (channelGroupType != null) {
+                        console.println("\n  ChannelGroupType " + channelGroupType.getUID().getId());
 
-                        if (channelGroupType != null) {
-                            console.println("\n  ChannelGroupType " + channelGroupType.getUID().getId());
+                        console.println(String.format("\n  %-60s | %-40s",
+                                channelGroupType.getUID().getId() + "#" + channelGroupType.getUID().getId(),
+                                channelGroupType.getLabel()));
 
-                            console.println(String.format("\n  %-60s | %-40s",
-                                    channelGroupType.getUID().getId() + "#" + channelGroupType.getUID().getId(),
-                                    channelGroupType.getLabel()));
+                        List<ChannelDefinition> channelDefinitions = channelGroupType.getChannelDefinitions();
 
-                            List<ChannelDefinition> channelDefinitions = channelGroupType.getChannelDefinitions();
+                        for (ChannelDefinition channelDefinition : channelDefinitions) {
 
-                            for (ChannelDefinition channelDefinition : channelDefinitions) {
+                            console.println(String.format("    -> %-55s | %-40s",
+                                    channelGroupType.getUID().getId() + "#" + channelDefinition.getId(),
+                                    channelDefinition.getLabel()));
 
-                                console.println(String.format("    -> %-55s | %-40s",
-                                        channelGroupType.getUID().getId() + "#" + channelDefinition.getId(),
-                                        channelDefinition.getLabel()));
-
-                            }
                         }
                     }
                 }
@@ -214,7 +175,10 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
 
                     if (thing.getHandler() instanceof EBusBridgeHandler) {
                         EBusBridgeHandler bridge = (EBusBridgeHandler) thing.getHandler();
-                        @SuppressWarnings("null")
+
+                        if (bridge == null) {
+                            throw new IllegalStateException("eBus bridge handler is not available!");
+                        }
 
                         IEBusController controller = bridge.getLibClient().getClient().getController();
 
@@ -248,8 +212,8 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
             for (EBusBridgeHandler handler : getAllEBusBridgeHandlers()) {
                 EBusClient client = handler.getLibClient().getClient();
                 EBusDeviceTable deviceTable = client.getDeviceTable();
-                @Nullable
-                Collection<@Nullable IEBusCommandCollection> collections = client.getCommandCollections();
+
+                Collection<IEBusCommandCollection> collections = client.getCommandCollections();
 
                 console.print(EBusConsoleUtils.getDeviceTableInformation(collections, deviceTable));
             }
@@ -257,8 +221,7 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
         } else {
             EBusClient client = bridge.getLibClient().getClient();
             EBusDeviceTable deviceTable = client.getDeviceTable();
-            @Nullable
-            Collection<@Nullable IEBusCommandCollection> collections = client.getCommandCollections();
+            Collection<IEBusCommandCollection> collections = client.getCommandCollections();
 
             console.print(EBusConsoleUtils.getDeviceTableInformation(collections, deviceTable));
 
@@ -270,10 +233,13 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
      * @param console
      */
     private void resolve(byte[] data, Console console) {
-        IEBusTypeProvider typeProvider = this.typeProvider;
-        if (typeProvider != null) {
-            console.println(EBusConsoleUtils.analyzeTelegram(typeProvider.getCommandRegistry(), data));
+        EBusCommandRegistry registry = typeProvider.getCommandRegistry();
+
+        if (registry == null) {
+            throw new RuntimeException("Unable to get the command registry!");
         }
+
+        console.println(EBusConsoleUtils.analyzeTelegram(registry, data));
     }
 
     @Override
@@ -326,10 +292,7 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
                 }
             } else if (StringUtils.equals(args[0], SUBCMD_RELOAD)) {
                 console.println("Reload all eBUS configurations ...");
-                IEBusTypeProvider typeProvider = this.typeProvider;
-                if (typeProvider != null) {
-                    typeProvider.reload();
-                }
+                typeProvider.reload();
 
             } else if (StringUtils.equals(args[0], SUBCMD_UPDATE)) {
                 Collection<EBusBridgeHandler> bridgeHandlers = getAllEBusBridgeHandlers();
@@ -358,6 +321,8 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
                 console.print(sb.toString());
             }
         } catch (EBusControllerException e) {
+            console.print(e.getMessage());
+        } catch (EBusTypeProviderException e) {
             console.print(e.getMessage());
         }
     }

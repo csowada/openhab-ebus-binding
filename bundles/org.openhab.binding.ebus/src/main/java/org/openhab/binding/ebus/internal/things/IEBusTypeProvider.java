@@ -38,7 +38,7 @@ public interface IEBusTypeProvider extends ThingTypeProvider, ChannelGroupTypePr
     /**
      * @param collections
      */
-    public void update(List<IEBusCommandCollection> collections);
+    public void update(List<IEBusCommandCollection> collections) throws EBusTypeProviderException;
 
     /**
      * @return
@@ -49,7 +49,7 @@ public interface IEBusTypeProvider extends ThingTypeProvider, ChannelGroupTypePr
     /**
      * @return
      */
-    public boolean reload();
+    public boolean reload() throws EBusTypeProviderException;
 
     /**
      * @see ChannelTypeRegistry#getChannelGroupType(ChannelGroupTypeUID, Locale)
