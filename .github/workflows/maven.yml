@@ -45,19 +45,17 @@ jobs:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: mvn --batch-mode -Dspotless.check.skip=true verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
 
-    # - run: mkdir staging && cp bundles/org.openhab.binding.ebus/target/*.jar staging
-
     - name: Upload Maven build artifact (JAR)
       uses: actions/upload-artifact@v2
       with:
         name: artifact
         path: bundles/org.openhab.binding.ebus/target/*.jar
 
-    - name: Build Karaf KAR file embedded with all dependencies
-      run: mvn --batch-mode -Dspotless.check.skip=true karaf:kar
+    # - name: Build Karaf KAR file embedded with all dependencies
+    #   run: mvn --batch-mode -Dspotless.check.skip=true karaf:kar
 
-    - name: Upload Maven build artifact (KAR)
-      uses: actions/upload-artifact@v2
-      with:
-        name: artifact-kar
-        path: bundles/org.openhab.binding.ebus/target/*.kar
+    # - name: Upload Maven build artifact (KAR)
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: artifact-kar
+    #     path: bundles/org.openhab.binding.ebus/target/*.kar
