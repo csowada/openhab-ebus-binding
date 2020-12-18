@@ -43,12 +43,23 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dspotless.check.skip=true
+      run: mvn --batch-mode -Dspotless.check.skip=true verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
 
-    - run: mkdir staging && cp target/*.jar staging
+    - run: mkdir staging && cp bundles/org.openhab.binding.ebus/target/*.jar staging
 
-    - name: Upload Maven build artifact
+    - name: Upload Maven build artifact (JAR)
       uses: actions/upload-artifact@v1
       with:
         name: artifact
         path: staging
+
+    - name: Build and analyze
+      run: mvn --batch-mode -Dspotless.check.skip=true 
+
+    - run: mkdir staging2 && cp bundles/org.openhab.binding.ebus/target/*.kar staging2
+
+    - name: Upload Maven build artifact (KAR)
+      uses: actions/upload-artifact@v1
+      with:
+        name: artifact-kar
+        path: staging2
