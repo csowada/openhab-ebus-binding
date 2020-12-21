@@ -15,7 +15,7 @@ package org.openhab.binding.ebus.internal;
 import java.net.URI;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
+import org.openhab.core.thing.ThingTypeUID;
 
 /**
  * The {@link EBusBindingConstants} class defines common constants, which are

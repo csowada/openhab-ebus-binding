@@ -12,7 +12,9 @@
  */
 package org.openhab.binding.ebus.internal.handler;
 
-import static org.openhab.binding.ebus.internal.EBusBindingConstants.*;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.DRIVER_EBUSD;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.DRIVER_NRJAVASERIAL;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.DRIVER_RAW;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -24,14 +26,6 @@ import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.thing.Bridge;
-import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.ThingHandlerService;
-import org.eclipse.smarthome.core.types.Command;
 import org.openhab.binding.ebus.action.EBusActions;
 import org.openhab.binding.ebus.internal.EBusBindingConstants;
 import org.openhab.binding.ebus.internal.EBusBridgeHandlerConfiguration;
@@ -41,6 +35,14 @@ import org.openhab.binding.ebus.internal.services.EBusMetricsService;
 import org.openhab.binding.ebus.internal.things.IEBusTypeProvider;
 import org.openhab.binding.ebus.internal.utils.EBusAdvancedLogging;
 import org.openhab.binding.ebus.internal.utils.EBusClientBridge;
+import org.openhab.core.thing.Bridge;
+import org.openhab.core.thing.ChannelUID;
+import org.openhab.core.thing.Thing;
+import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingStatusDetail;
+import org.openhab.core.thing.ThingTypeUID;
+import org.openhab.core.thing.binding.ThingHandlerService;
+import org.openhab.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

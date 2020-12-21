@@ -12,7 +12,9 @@
  */
 package org.openhab.binding.ebus.internal.utils;
 
-import static org.openhab.binding.ebus.internal.EBusBindingConstants.*;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.COMMAND;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.DRIVER_JSERIALCOMM;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.VALUE_NAME;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -21,13 +23,13 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.library.types.DecimalType;
-import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.State;
 import org.openhab.binding.ebus.internal.EBusBindingConstants;
+import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.thing.Channel;
+import org.openhab.core.thing.Thing;
+import org.openhab.core.types.Command;
+import org.openhab.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

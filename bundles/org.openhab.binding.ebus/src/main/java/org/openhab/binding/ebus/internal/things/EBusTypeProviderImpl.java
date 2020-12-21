@@ -12,7 +12,12 @@
  */
 package org.openhab.binding.ebus.internal.things;
 
-import static org.openhab.binding.ebus.internal.EBusBindingConstants.*;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.BINDING_PID;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.COMMAND;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.CONFIG_DESCRIPTION_URI_NODE;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.CONFIG_DESCRIPTION_URI_NULL_CHANNEL;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.CONFIG_DESCRIPTION_URI_POLLING_CHANNEL;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.VALUE_NAME;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -34,27 +39,28 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.ThingTypeProvider;
-import org.eclipse.smarthome.core.thing.type.ChannelDefinition;
-import org.eclipse.smarthome.core.thing.type.ChannelDefinitionBuilder;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupDefinition;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupType;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeBuilder;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeProvider;
-import org.eclipse.smarthome.core.thing.type.ChannelGroupTypeUID;
-import org.eclipse.smarthome.core.thing.type.ChannelType;
-import org.eclipse.smarthome.core.thing.type.ChannelTypeBuilder;
-import org.eclipse.smarthome.core.thing.type.ChannelTypeProvider;
-import org.eclipse.smarthome.core.thing.type.ChannelTypeUID;
-import org.eclipse.smarthome.core.thing.type.ThingType;
-import org.eclipse.smarthome.core.thing.type.ThingTypeBuilder;
-import org.eclipse.smarthome.core.types.StateDescription;
-import org.eclipse.smarthome.core.types.StateDescriptionFragmentBuilder;
-import org.eclipse.smarthome.core.types.StateOption;
 import org.openhab.binding.ebus.internal.EBusBindingConfiguration;
 import org.openhab.binding.ebus.internal.EBusBindingConstants;
 import org.openhab.binding.ebus.internal.utils.EBusBindingUtils;
+import org.openhab.core.thing.ThingTypeUID;
+import org.openhab.core.thing.binding.ThingTypeProvider;
+import org.openhab.core.thing.type.ChannelDefinition;
+import org.openhab.core.thing.type.ChannelDefinitionBuilder;
+import org.openhab.core.thing.type.ChannelGroupDefinition;
+import org.openhab.core.thing.type.ChannelGroupType;
+import org.openhab.core.thing.type.ChannelGroupTypeBuilder;
+import org.openhab.core.thing.type.ChannelGroupTypeProvider;
+import org.openhab.core.thing.type.ChannelGroupTypeUID;
+import org.openhab.core.thing.type.ChannelType;
+import org.openhab.core.thing.type.ChannelTypeBuilder;
+import org.openhab.core.thing.type.ChannelTypeProvider;
+import org.openhab.core.thing.type.ChannelTypeUID;
+import org.openhab.core.thing.type.ThingType;
+import org.openhab.core.thing.type.ThingTypeBuilder;
+import org.openhab.core.types.StateDescription;
+import org.openhab.core.types.StateDescriptionFragment;
+import org.openhab.core.types.StateDescriptionFragmentBuilder;
+import org.openhab.core.types.StateOption;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.osgi.service.component.ComponentContext;
@@ -87,7 +93,7 @@ import de.csdev.ebus.configuration.EBusConfigurationReaderExt;
 @NonNullByDefault
 @Component(service = { IEBusTypeProvider.class, ThingTypeProvider.class, ChannelTypeProvider.class,
         ChannelGroupTypeProvider.class }, configurationPid = BINDING_PID, immediate = true)
-public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusTypeProvider {
+public class EBusTypeProviderImpl extends EBusTypeProviderBase {
 
     private final Logger logger = LoggerFactory.getLogger(EBusTypeProviderImpl.class);
 
@@ -183,7 +189,12 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
             throw new EBusTypeProviderException("Unable to generate label!");
         }
 
-        ChannelGroupType cgt = ChannelGroupTypeBuilder.instance(groupTypeUID, label).isAdvanced(false)
+        // TODO: Check if ``isAdvanced`` is really not required
+        // ChannelGroupType cgt = ChannelGroupTypeBuilder.instance(groupTypeUID, label).isAdvanced(false)
+        // .withCategory(command.getId()).withChannelDefinitions(channelDefinitions).withDescription("HVAC")
+        // .build();
+
+        ChannelGroupType cgt = ChannelGroupTypeBuilder.instance(groupTypeUID, label)
                 .withCategory(command.getId()).withChannelDefinitions(channelDefinitions).withDescription("HVAC")
                 .build();
 
@@ -284,8 +295,6 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
                 stateBuilder.withOptions(options);
             }
 
-            StateDescription state = stateBuilder.build().toStateDescription();
-
             URI configDescriptionURI = polling ? CONFIG_DESCRIPTION_URI_POLLING_CHANNEL
                     : CONFIG_DESCRIPTION_URI_NULL_CHANNEL;
 
@@ -303,8 +312,10 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
                 throw new EBusTypeProviderException("No label available!");
             }
 
+            StateDescriptionFragment stateFragment = stateBuilder.build();
+
             return ChannelTypeBuilder.state(uid, label, itemType).withConfigDescriptionURI(configDescriptionURI)
-                    .isAdvanced(advanced).withStateDescription(state).build();
+                    .isAdvanced(advanced).withStateDescriptionFragment(stateFragment).build();
         }
 
         return null;
@@ -546,7 +557,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
         Map<String, Object> dictCopy = keys.stream().collect(Collectors.toMap(Function.identity(), properties::get));
 
         if (dictCopy != null) {
-            org.eclipse.smarthome.config.core.Configuration c = new org.eclipse.smarthome.config.core.Configuration(
+            org.openhab.core.config.core.Configuration c = new org.openhab.core.config.core.Configuration(
                     dictCopy);
             return c.as(EBusBindingConfiguration.class);
         }
