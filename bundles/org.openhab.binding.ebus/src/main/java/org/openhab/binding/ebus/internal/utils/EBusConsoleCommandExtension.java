@@ -43,6 +43,7 @@ import de.csdev.ebus.command.EBusCommandRegistry;
 import de.csdev.ebus.command.IEBusCommandCollection;
 import de.csdev.ebus.core.EBusControllerException;
 import de.csdev.ebus.core.EBusDataException;
+import de.csdev.ebus.core.EBusEbusdController;
 import de.csdev.ebus.core.EBusLowLevelController;
 import de.csdev.ebus.core.IEBusController;
 import de.csdev.ebus.core.connection.EBusEmulatorConnection;
@@ -190,7 +191,7 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
                             } else {
                                 type = "bridge";
                             }
-                        } else if (controller instanceof EBusLowLevelController) {
+                        } else if (controller instanceof EBusEbusdController) {
                             type = "bridge (ebusd)";
                         }
 
