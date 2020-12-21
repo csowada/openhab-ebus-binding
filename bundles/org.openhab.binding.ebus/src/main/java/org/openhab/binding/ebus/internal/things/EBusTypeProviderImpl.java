@@ -546,7 +546,6 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
         Map<String, Object> dictCopy = keys.stream().collect(Collectors.toMap(Function.identity(), properties::get));
 
         if (dictCopy != null) {
-            @SuppressWarnings("null")
             org.eclipse.smarthome.config.core.Configuration c = new org.eclipse.smarthome.config.core.Configuration(
                     dictCopy);
             return c.as(EBusBindingConfiguration.class);

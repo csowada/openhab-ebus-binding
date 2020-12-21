@@ -21,7 +21,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.binding.ThingActions;
 import org.eclipse.smarthome.core.thing.binding.ThingActionsScope;
 import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.openhab.binding.ebus.internal.EBusBindingConfiguration;
 import org.openhab.binding.ebus.internal.handler.EBusBridgeHandler;
 import org.openhab.binding.ebus.internal.utils.EBusClientBridge;
 import org.openhab.core.automation.annotation.ActionInput;
@@ -40,7 +39,6 @@ import de.csdev.ebus.core.EBusDataException;
 import de.csdev.ebus.utils.EBusUtils;
 
 /**
- * The {@link EBusBindingConfiguration} class contains fields mapping thing configuration parameters.
  *
  * @author Christian Sowada - Initial contribution
  */

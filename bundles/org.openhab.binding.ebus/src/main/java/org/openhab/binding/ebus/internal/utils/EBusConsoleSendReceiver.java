@@ -15,7 +15,6 @@ package org.openhab.binding.ebus.internal.utils;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.io.console.Console;
@@ -77,10 +76,8 @@ public class EBusConsoleSendReceiver extends EBusConnectorEventListener implemen
     }
 
     @Override
-
-    public void onTelegramResolved(@Nullable IEBusCommandMethod commandChannel,
-            @NonNull Map<@NonNull String, @NonNull Object> result, byte @Nullable [] receivedData,
-            @Nullable Integer sendQueueId) {
+    public void onTelegramResolved(@Nullable IEBusCommandMethod commandChannel, Map<String, @Nullable Object> result,
+            byte @Nullable [] receivedData, @Nullable Integer sendQueueId) {
 
         Integer queueId = this.queueId;
         if (queueId != null && queueId.equals(sendQueueId)) {
@@ -94,10 +91,12 @@ public class EBusConsoleSendReceiver extends EBusConnectorEventListener implemen
 
             console.println("");
             console.println("Received values:");
-            for (Entry<String, Object> entry : result.entrySet()) {
+            for (Entry<String, @Nullable Object> entry : result.entrySet()) {
                 if (entry != null) {
                     Object value = entry.getValue();
-                    console.println(String.format(" %s: %s", entry.getKey(), value.toString()));
+                    if (value != null) {
+                        console.println(String.format(" %s: %s", entry.getKey(), value.toString()));
+                    }
                 }
             }
 

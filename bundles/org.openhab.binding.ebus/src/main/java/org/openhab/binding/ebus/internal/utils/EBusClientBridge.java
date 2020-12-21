@@ -177,7 +177,6 @@ public class EBusClientBridge {
      * @throws EBusTypeException
      * @throws EBusCommandException
      */
-    @Nullable
     public ByteBuffer generateSetterTelegram(Thing thing, Channel channel, Command command)
             throws EBusTypeException, EBusCommandException {
         String slaveAddress = (String) thing.getConfiguration().get(EBusBindingConstants.SLAVE_ADDRESS);
@@ -248,7 +247,6 @@ public class EBusClientBridge {
      * @throws EBusTypeException
      * @throws EBusCommandException
      */
-    @Nullable
     public ByteBuffer generatePollingTelegram(String collectionId, String commandId, IEBusCommandMethod.Method type,
             Thing targetThing) throws EBusTypeException, EBusCommandException {
         String slaveAddress = (String) targetThing.getConfiguration().get(EBusBindingConstants.SLAVE_ADDRESS);

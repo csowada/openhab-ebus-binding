@@ -254,7 +254,7 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
     @Override
     @NonNullByDefault({})
     public void onTelegramResolved(@Nullable IEBusCommandMethod commandChannel,
-            @NonNull Map<@NonNull String, @NonNull Object> result, byte @Nullable [] receivedData,
+            @NonNull Map<@NonNull String, @Nullable Object> result, byte @Nullable [] receivedData,
             @Nullable Integer sendQueueId) {
 
         boolean noHandler = true;

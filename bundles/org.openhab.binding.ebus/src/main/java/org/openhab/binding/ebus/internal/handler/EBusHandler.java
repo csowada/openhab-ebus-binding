@@ -315,9 +315,7 @@ public class EBusHandler extends BaseThingHandler {
             if (channel != null) {
                 try {
                     ByteBuffer telegram = getLibClient().generateSetterTelegram(thing, channel, command);
-                    if (telegram != null) {
-                        getLibClient().sendTelegram(telegram);
-                    }
+                    getLibClient().sendTelegram(telegram);
                 } catch (EBusTypeException | EBusControllerException | EBusCommandException e) {
                     logger.error("error!", e);
                 }

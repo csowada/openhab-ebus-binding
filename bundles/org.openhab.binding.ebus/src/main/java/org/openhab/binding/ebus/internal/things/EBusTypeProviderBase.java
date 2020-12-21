@@ -41,7 +41,6 @@ import org.eclipse.smarthome.core.thing.type.ThingType;
 public abstract class EBusTypeProviderBase
         implements IEBusTypeProvider, ThingTypeProvider, ChannelGroupTypeProvider, ChannelTypeProvider {
 
-    @SuppressWarnings("null")
     protected final List<String> supportedBridgeTypeUIDs = Arrays.asList(THING_TYPE_EBUS_BRIDGE.getAsString());
 
     protected Map<ChannelGroupTypeUID, ChannelGroupType> channelGroupTypes = new HashMap<>();
@@ -56,7 +55,6 @@ public abstract class EBusTypeProviderBase
         return channelGroupTypes.get(channelGroupTypeUID);
     }
 
-    @SuppressWarnings("null")
     @Override
     public Collection<ChannelGroupType> getChannelGroupTypes(@Nullable Locale locale) {
         return channelGroupTypes.values();
@@ -67,7 +65,6 @@ public abstract class EBusTypeProviderBase
         return channelTypes.get(channelTypeUID);
     }
 
-    @SuppressWarnings("null")
     @Override
     public Collection<ChannelType> getChannelTypes(@Nullable Locale locale) {
         return channelTypes.values();
@@ -78,7 +75,6 @@ public abstract class EBusTypeProviderBase
         return thingTypes.get(thingTypeUID);
     }
 
-    @SuppressWarnings("null")
     @Override
     public Collection<ThingType> getThingTypes(@Nullable Locale locale) {
         return thingTypes.values();
