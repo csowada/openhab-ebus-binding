@@ -87,11 +87,11 @@ jobs:
         asset_content_type: application/java-archive
 
     - name: Get Name of JAR Artifact
-        run: |
-          ARTIFACT_PATHNAME=$(ls bundles/org.openhab.binding.ebus/target/*.jar | head -n 1)
-          ARTIFACT_NAME=$(basename $ARTIFACT_PATHNAME)
-          echo ::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}
-          echo ::set-env name=ARTIFACT_PATHNAME::${ARTIFACT_PATHNAME}
+      run: |
+        ARTIFACT_PATHNAME=$(ls bundles/org.openhab.binding.ebus/target/*.jar | head -n 1)
+        ARTIFACT_NAME=$(basename $ARTIFACT_PATHNAME)
+        echo ::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}
+        echo ::set-env name=ARTIFACT_PATHNAME::${ARTIFACT_PATHNAME}
 
     - name: Upload release asset ${{ env.GITHUB_TAG }}
       id: upload-release-asset
