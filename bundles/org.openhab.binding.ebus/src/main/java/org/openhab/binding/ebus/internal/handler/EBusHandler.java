@@ -270,16 +270,12 @@ public class EBusHandler extends BaseThingHandler {
 
         final Map<String, String> properties = channel.getProperties();
         final String collectionId = thing.getThingTypeUID().getId();
-
-        // final String collectionId = properties.get(COLLECTION);
         final String commandId = properties.get(COMMAND);
 
         try {
             return libClient.generatePollingTelegram(collectionId, commandId, IEBusCommandMethod.Method.GET, thing);
 
-        } catch (EBusTypeException e) {
-            logger.error("error!", e);
-        } catch (EBusCommandException e) {
+        } catch (EBusTypeException | EBusCommandException e) {
             logger.error("error!", e);
         }
 
@@ -432,7 +428,7 @@ public class EBusHandler extends BaseThingHandler {
                 // create a job to send this raw telegram every n seconds
                 ScheduledFuture<?> job = scheduler.scheduleWithFixedDelay(() -> {
                     logger.trace("Poll command \"{}\" with \"{}\" ...", channel.getUID(),
-                            EBusUtils.toHexDumpString(telegram).toString());
+                            EBusUtils.toHexDumpString(telegram));
 
                     try {
                         IEBusController controller = libClient.getController();
@@ -539,9 +535,6 @@ public class EBusHandler extends BaseThingHandler {
 
         EBusHandlerConfiguration configuration = getConfigAs(EBusHandlerConfiguration.class);
         logger.trace("eBUS handler cfg {}", configuration);
-        // if (configuration == null) {
-        // return false;
-        // }
 
         byte sourceAddress = receivedData[0];
         byte destinationAddress = receivedData[1];

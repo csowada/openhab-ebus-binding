@@ -137,8 +137,7 @@ public class EBusClientBridge {
     }
 
     public @Nullable IEBusController getController() {
-        IEBusController controller = client.getController();
-        return controller;
+        return client.getController();
     }
 
     /**
@@ -282,9 +281,9 @@ public class EBusClientBridge {
      */
     public void initClient(Byte masterAddress) {
         // connect the high level client
-        IEBusController controller = this.controller;
-        if (controller != null) {
-            client.connect(controller, masterAddress);
+        IEBusController ctlr = this.controller;
+        if (ctlr != null) {
+            client.connect(ctlr, masterAddress);
         }
     }
 
@@ -292,9 +291,9 @@ public class EBusClientBridge {
      *
      */
     public void startClient() {
-        IEBusController controller = this.controller;
-        if (controller != null) {
-            controller.start();
+        IEBusController ctlr = this.controller;
+        if (ctlr != null) {
+            ctlr.start();
         }
     }
 
@@ -302,9 +301,9 @@ public class EBusClientBridge {
      *
      */
     public void stopClient() {
-        IEBusController controller = this.controller;
-        if (controller != null && !controller.isInterrupted()) {
-            controller.interrupt();
+        IEBusController ctlr = this.controller;
+        if (ctlr != null && !ctlr.isInterrupted()) {
+            ctlr.interrupt();
         }
     }
 }

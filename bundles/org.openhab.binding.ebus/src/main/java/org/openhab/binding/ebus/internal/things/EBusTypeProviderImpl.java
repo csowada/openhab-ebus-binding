@@ -57,7 +57,6 @@ import org.openhab.core.thing.type.ChannelTypeProvider;
 import org.openhab.core.thing.type.ChannelTypeUID;
 import org.openhab.core.thing.type.ThingType;
 import org.openhab.core.thing.type.ThingTypeBuilder;
-import org.openhab.core.types.StateDescription;
 import org.openhab.core.types.StateDescriptionFragment;
 import org.openhab.core.types.StateDescriptionFragmentBuilder;
 import org.openhab.core.types.StateOption;
@@ -150,7 +149,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase {
             }
 
             // store command id and value name
-            Map<String, String> properties = new HashMap<String, String>();
+            Map<String, String> properties = new HashMap<>();
             properties.put(COMMAND, mainMethod.getParent().getId());
             properties.put(VALUE_NAME, name);
 
@@ -188,11 +187,6 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase {
         if (label == null) {
             throw new EBusTypeProviderException("Unable to generate label!");
         }
-
-        // TODO: Check if ``isAdvanced`` is really not required
-        // ChannelGroupType cgt = ChannelGroupTypeBuilder.instance(groupTypeUID, label).isAdvanced(false)
-        // .withCategory(command.getId()).withChannelDefinitions(channelDefinitions).withDescription("HVAC")
-        // .build();
 
         ChannelGroupType cgt = ChannelGroupTypeBuilder.instance(groupTypeUID, label)
                 .withCategory(command.getId()).withChannelDefinitions(channelDefinitions).withDescription("HVAC")
@@ -232,7 +226,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase {
             Map<String, String> mappings = value.getMapping();
 
             if (mappings != null && !mappings.isEmpty()) {
-                options = new ArrayList<StateOption>();
+                options = new ArrayList<>();
                 for (Entry<String, String> entry : mappings.entrySet()) {
                     options.add(new StateOption(entry.getKey(), entry.getValue()));
                 }
@@ -261,7 +255,6 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase {
 
             } else if (options != null) {
                 // options works only for string! or in not readOnly mode
-                // itemType = "Number";
                 itemType = EBusBindingConstants.ITEM_TYPE_STRING;
             }
 
@@ -342,7 +335,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase {
 
         String description = collection.getDescription();
 
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<>();
 
         String hash = String.valueOf(collection.hashCode());
 
@@ -382,9 +375,8 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase {
         channelTypes.clear();
         thingTypes.clear();
 
-        EBusCommandRegistry commandRegistry = this.commandRegistry;
-        if (commandRegistry != null) {
-            commandRegistry.clear();
+        if (this.commandRegistry != null) {
+            this.commandRegistry.clear();
             this.commandRegistry = null;
         }
     }
@@ -428,9 +420,8 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase {
     public boolean reload() throws EBusTypeProviderException {
 
         try {
-            ConfigurationAdmin configurationAdmin = this.configurationAdmin;
-            if (configurationAdmin != null) {
-                Configuration configuration = configurationAdmin.getConfiguration(BINDING_PID, null);
+            if (this.configurationAdmin != null) {
+                Configuration configuration = this.configurationAdmin.getConfiguration(BINDING_PID, null);
 
                 Dictionary<String, Object> properties = configuration.getProperties();
                 if (properties != null && !properties.isEmpty()) {
@@ -508,7 +499,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase {
                 }
 
                 // now check for nested values
-                List<IEBusValue> childList = new ArrayList<IEBusValue>();
+                List<IEBusValue> childList = new ArrayList<>();
                 for (IEBusValue value : list) {
                     if (value instanceof IEBusNestedValue) {
                         IEBusNestedValue val = (IEBusNestedValue) value;
@@ -575,41 +566,41 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase {
 
         EBusBindingConfiguration configuration = getConfiguration(properties);
 
-        EBusCommandRegistry commandRegistry = this.commandRegistry;
+        EBusCommandRegistry cmdRegistry = this.commandRegistry;
 
         // Map
-        if (commandRegistry == null || configuration == null) {
+        if (cmdRegistry == null || configuration == null) {
             return;
         }
 
-        commandRegistry.clear();
+        cmdRegistry.clear();
 
-        commandRegistry.loadBuildInCommandCollections();
+        cmdRegistry.loadBuildInCommandCollections();
 
         if (!properties.isEmpty()) {
 
             String configurationUrl = configuration.configurationUrl;
             if (configurationUrl != null) {
-                logger.info("Load custom configuration file '{}' ...", configurationUrl);
-                loadConfigurationByUrl(commandRegistry, configurationUrl);
+                logger.info("Load custom 'url' configuration file '{}' ...", configurationUrl);
+                loadConfigurationByUrl(cmdRegistry, configurationUrl);
             }
 
             String configurationUrl1 = configuration.configurationUrl1;
             if (configurationUrl1 != null) {
-                logger.info("Load custom configuration file '{}' ...", configurationUrl1);
-                loadConfigurationByUrl(commandRegistry, configurationUrl1);
+                logger.info("Load custom 'url1' configuration file '{}' ...", configurationUrl1);
+                loadConfigurationByUrl(cmdRegistry, configurationUrl1);
             }
 
             String configurationUrl2 = configuration.configurationUrl2;
             if (configurationUrl2 != null) {
-                logger.info("Load custom configuration file '{}' ...", configurationUrl2);
-                loadConfigurationByUrl(commandRegistry, configurationUrl2);
+                logger.info("Load custom 'url2' configuration file '{}' ...", configurationUrl2);
+                loadConfigurationByUrl(cmdRegistry, configurationUrl2);
             }
 
             String configurationBundleUrl = configuration.configurationBundleUrl;
             if (configurationBundleUrl != null) {
-                logger.info("Load custom configuration bundle '{}' ...", configurationBundleUrl);
-                loadConfigurationBundleByUrl(commandRegistry, configurationBundleUrl);
+                logger.info("Load custom 'bundleUrl' configuration bundle '{}' ...", configurationBundleUrl);
+                loadConfigurationBundleByUrl(cmdRegistry, configurationBundleUrl);
             }
         }
 

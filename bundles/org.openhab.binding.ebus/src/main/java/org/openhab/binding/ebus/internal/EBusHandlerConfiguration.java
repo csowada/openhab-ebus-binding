@@ -39,7 +39,7 @@ public class EBusHandlerConfiguration {
     /**
      * Accept telegrams for master address
      */
-    public Boolean filterAcceptMaster = false;
+    public @Nullable Boolean filterAcceptMaster = false;
 
     /**
      * Accept telegrams for slave address<

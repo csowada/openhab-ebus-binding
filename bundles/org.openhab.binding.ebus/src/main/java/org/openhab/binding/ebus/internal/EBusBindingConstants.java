@@ -26,6 +26,10 @@ import org.openhab.core.thing.ThingTypeUID;
 @NonNullByDefault
 public class EBusBindingConstants {
 
+    private EBusBindingConstants() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static final String BINDING_ID = "ebus";
     public static final String BINDING_PID = "binding.ebus";
 

@@ -27,7 +27,7 @@ import org.openhab.core.types.State;
 @NonNullByDefault
 public abstract class EBusBaseBridgeHandler extends BaseBridgeHandler implements IEBusBridgeHandler {
 
-    public EBusBaseBridgeHandler(Bridge bridge) {
+    protected EBusBaseBridgeHandler(Bridge bridge) {
         super(bridge);
     }
 

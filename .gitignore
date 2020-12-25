@@ -1,9 +1,7 @@
-bundles/**/src/main/history
-features/**/src/main/history
-features/**/src/main/feature
-
 .antlr*
+.classpath
 .idea
+.project
 .DS_Store
 *.iml
 npm-debug.log
@@ -25,3 +23,4 @@ features/**/src/main/feature
 
 .vscode
 .factorypath
+pom.xml.versionsBackup
