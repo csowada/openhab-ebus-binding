@@ -12,10 +12,13 @@
  */
 package org.openhab.binding.ebus.internal.things;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+
 /**
  *
  * @author Christian Sowada - Initial contribution
  */
+@NonNullByDefault
 public class EBusTypeProviderException extends Exception {
 
     /**

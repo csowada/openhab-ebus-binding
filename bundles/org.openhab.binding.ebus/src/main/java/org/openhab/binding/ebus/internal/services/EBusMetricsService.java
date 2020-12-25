@@ -12,17 +12,24 @@
  */
 package org.openhab.binding.ebus.internal.services;
 
-import static org.openhab.binding.ebus.internal.EBusBindingConstants.*;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.FAILED_RATIO;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.FAILED_TELEGRAMS;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.METRICS;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.RECEIVED_TELEGRAMS;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.RESOLVED_TELEGRAMS;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.SEND_RECEIVE_ROUNDTRIP_TIME;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.UNRESOLVED_RATIO;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.UNRESOLVED_TELEGRAMS;
 
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.library.types.DecimalType;
-import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.ThingUID;
 import org.openhab.binding.ebus.internal.handler.IEBusBridgeHandler;
+import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.thing.ChannelUID;
+import org.openhab.core.thing.ThingUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

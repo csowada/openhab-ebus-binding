@@ -15,11 +15,11 @@ package org.openhab.binding.ebus.internal.handler;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.core.thing.Bridge;
-import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.eclipse.smarthome.core.types.State;
 import org.openhab.binding.ebus.internal.utils.EBusClientBridge;
+import org.openhab.core.thing.Bridge;
+import org.openhab.core.thing.ChannelUID;
+import org.openhab.core.thing.binding.ThingHandler;
+import org.openhab.core.types.State;
 
 /**
  *

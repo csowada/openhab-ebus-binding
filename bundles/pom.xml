@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.openhab.addons</groupId>
     <artifactId>org.openhab.addons.reactor</artifactId>
-    <version>2.50.9-SNAPSHOT</version>
+    <version>3.0.10-SNAPSHOT</version>
   </parent>
 
   <groupId>org.openhab.addons.bundles</groupId>
@@ -121,7 +121,7 @@
                   <descriptor>file:${project.build.directory}/feature/feature.xml</descriptor>
                 </descriptors>
                 <distribution>org.apache.karaf.features:framework</distribution>
-                <javase>1.8</javase>
+                <javase>${oh.java.version}</javase>
                 <framework>
                   <feature>framework</feature>
                 </framework>
