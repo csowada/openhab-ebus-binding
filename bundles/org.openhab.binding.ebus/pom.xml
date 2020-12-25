@@ -7,12 +7,12 @@
   <parent>
     <groupId>org.openhab.addons.bundles</groupId>
     <artifactId>org.openhab.addons.reactor.bundles</artifactId>
-    <version>2.50.9-SNAPSHOT</version>
+    <version>2.50.9</version>
   </parent>
 
   <properties>
-    <ebus.core.version>1.1.3-SNAPSHOT</ebus.core.version>
-    <ebus.config.version>1.1.3-SNAPSHOT</ebus.config.version>
+    <ebus.core.version>1.1.3</ebus.core.version>
+    <ebus.config.version>1.1.3</ebus.config.version>
   </properties>
 
   <artifactId>org.openhab.binding.ebus</artifactId>
