@@ -1,0 +1,105 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: GitHub Release (Test)
+
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+    - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+
+    - name: Cache Maven packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Set up Java
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+
+    - name: Package maven project
+      run: mvn --batch-mode --update-snapshots -Dspotless.check.skip=true install
+
+    - name: Upload Maven build artifact (JAR)
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifact-jar
+        path: bundles/org.openhab.binding.ebus/target/*.jar
+
+    - name: Remove classes folder to not include it into KAR
+      run: rm -rf bundles/org.openhab.binding.ebus/target/classes
+
+    - name: Build Karaf KAR file embedded with all dependencies
+      run: mvn --batch-mode -Dspotless.check.skip=true karaf:kar -pl :org.openhab.binding.ebus
+
+    - name: Upload Maven build artifact (KAR)
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifact-kar
+        path: bundles/org.openhab.binding.ebus/target/*.kar
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          Changes in this Release
+          - First Change
+          - Second Change
+        draft: true
+        prerelease: false
+
+    - name: Get Name of KAR Artifact
+        run: |
+          ARTIFACT_PATHNAME=$(ls bundles/org.openhab.binding.ebus/target/*.kar | head -n 1)
+          ARTIFACT_NAME=$(basename $ARTIFACT_PATHNAME)
+          echo ::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}
+          echo ::set-env name=ARTIFACT_PATHNAME::${ARTIFACT_PATHNAME}
+
+    - name: Upload release asset ${{ env.GITHUB_TAG }}
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ env.ARTIFACT_PATHNAME }}
+        asset_name: ${{ env.ARTIFACT_NAME }}
+        asset_content_type: application/java-archive
+
+    - name: Get Name of JAR Artifact
+        run: |
+          ARTIFACT_PATHNAME=$(ls bundles/org.openhab.binding.ebus/target/*.jar | head -n 1)
+          ARTIFACT_NAME=$(basename $ARTIFACT_PATHNAME)
+          echo ::set-env name=ARTIFACT_NAME::${ARTIFACT_NAME}
+          echo ::set-env name=ARTIFACT_PATHNAME::${ARTIFACT_PATHNAME}
+
+    - name: Upload release asset ${{ env.GITHUB_TAG }}
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ env.ARTIFACT_PATHNAME }}
+        asset_name: ${{ env.ARTIFACT_NAME }}
+        asset_content_type: application/java-archive
