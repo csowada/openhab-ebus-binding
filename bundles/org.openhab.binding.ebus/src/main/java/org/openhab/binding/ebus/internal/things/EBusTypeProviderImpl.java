@@ -144,7 +144,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
             }
 
             // store command id and value name
-            Map<String, String> properties = new HashMap<String, String>();
+            Map<String, String> properties = new HashMap<>();
             properties.put(COMMAND, mainMethod.getParent().getId());
             properties.put(VALUE_NAME, name);
 
@@ -221,7 +221,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
             Map<String, String> mappings = value.getMapping();
 
             if (mappings != null && !mappings.isEmpty()) {
-                options = new ArrayList<StateOption>();
+                options = new ArrayList<>();
                 for (Entry<String, String> entry : mappings.entrySet()) {
                     options.add(new StateOption(entry.getKey(), entry.getValue()));
                 }
@@ -250,7 +250,6 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
 
             } else if (options != null) {
                 // options works only for string! or in not readOnly mode
-                // itemType = "Number";
                 itemType = EBusBindingConstants.ITEM_TYPE_STRING;
             }
 
@@ -331,7 +330,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
 
         String description = collection.getDescription();
 
-        Map<String, String> properties = new HashMap<String, String>();
+        Map<String, String> properties = new HashMap<>();
 
         String hash = String.valueOf(collection.hashCode());
 
@@ -371,9 +370,8 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
         channelTypes.clear();
         thingTypes.clear();
 
-        EBusCommandRegistry commandRegistry = this.commandRegistry;
-        if (commandRegistry != null) {
-            commandRegistry.clear();
+        if (this.commandRegistry != null) {
+            this.commandRegistry.clear();
             this.commandRegistry = null;
         }
     }
@@ -417,9 +415,8 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
     public boolean reload() throws EBusTypeProviderException {
 
         try {
-            ConfigurationAdmin configurationAdmin = this.configurationAdmin;
-            if (configurationAdmin != null) {
-                Configuration configuration = configurationAdmin.getConfiguration(BINDING_PID, null);
+            if (this.configurationAdmin != null) {
+                Configuration configuration = this.configurationAdmin.getConfiguration(BINDING_PID, null);
 
                 Dictionary<String, Object> properties = configuration.getProperties();
                 if (properties != null && !properties.isEmpty()) {
@@ -497,7 +494,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
                 }
 
                 // now check for nested values
-                List<IEBusValue> childList = new ArrayList<IEBusValue>();
+                List<IEBusValue> childList = new ArrayList<>();
                 for (IEBusValue value : list) {
                     if (value instanceof IEBusNestedValue) {
                         IEBusNestedValue val = (IEBusNestedValue) value;
@@ -564,41 +561,41 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
 
         EBusBindingConfiguration configuration = getConfiguration(properties);
 
-        EBusCommandRegistry commandRegistry = this.commandRegistry;
+        EBusCommandRegistry cmdRegistry = this.commandRegistry;
 
         // Map
-        if (commandRegistry == null || configuration == null) {
+        if (cmdRegistry == null || configuration == null) {
             return;
         }
 
-        commandRegistry.clear();
+        cmdRegistry.clear();
 
-        commandRegistry.loadBuildInCommandCollections();
+        cmdRegistry.loadBuildInCommandCollections();
 
         if (!properties.isEmpty()) {
 
             String configurationUrl = configuration.configurationUrl;
             if (configurationUrl != null) {
-                logger.info("Load custom configuration file '{}' ...", configurationUrl);
-                loadConfigurationByUrl(commandRegistry, configurationUrl);
+                logger.info("Load custom 'url' configuration file '{}' ...", configurationUrl);
+                loadConfigurationByUrl(cmdRegistry, configurationUrl);
             }
 
             String configurationUrl1 = configuration.configurationUrl1;
             if (configurationUrl1 != null) {
-                logger.info("Load custom configuration file '{}' ...", configurationUrl1);
-                loadConfigurationByUrl(commandRegistry, configurationUrl1);
+                logger.info("Load custom 'url1' configuration file '{}' ...", configurationUrl1);
+                loadConfigurationByUrl(cmdRegistry, configurationUrl1);
             }
 
             String configurationUrl2 = configuration.configurationUrl2;
             if (configurationUrl2 != null) {
-                logger.info("Load custom configuration file '{}' ...", configurationUrl2);
-                loadConfigurationByUrl(commandRegistry, configurationUrl2);
+                logger.info("Load custom 'url2' configuration file '{}' ...", configurationUrl2);
+                loadConfigurationByUrl(cmdRegistry, configurationUrl2);
             }
 
             String configurationBundleUrl = configuration.configurationBundleUrl;
             if (configurationBundleUrl != null) {
-                logger.info("Load custom configuration bundle '{}' ...", configurationBundleUrl);
-                loadConfigurationBundleByUrl(commandRegistry, configurationBundleUrl);
+                logger.info("Load custom 'bundleUrl' configuration bundle '{}' ...", configurationBundleUrl);
+                loadConfigurationBundleByUrl(cmdRegistry, configurationBundleUrl);
             }
         }
 

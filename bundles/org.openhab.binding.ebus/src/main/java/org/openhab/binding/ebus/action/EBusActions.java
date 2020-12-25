@@ -134,9 +134,7 @@ public class EBusActions implements ThingActions {
                 client.addToSendQueue(EBusCommandUtils.prepareSendTelegram(data));
             }
 
-        } catch (EBusDataException e) {
-            logger.error("error!", e);
-        } catch (EBusControllerException e) {
+        } catch (EBusDataException | EBusControllerException e) {
             logger.error("error!", e);
         }
     }
@@ -195,11 +193,7 @@ public class EBusActions implements ThingActions {
             ByteBuffer buffer = client.buildTelegram(method, destionationAddressByte, values);
             client.addToSendQueue(EBusUtils.toByteArray(buffer));
 
-        } catch (EBusTypeException e) {
-            logger.error("error!", e);
-        } catch (EBusControllerException e) {
-            logger.error("error!", e);
-        } catch (EBusCommandException e) {
+        } catch (EBusTypeException | EBusControllerException | EBusCommandException e) {
             logger.error("error!", e);
         }
     }

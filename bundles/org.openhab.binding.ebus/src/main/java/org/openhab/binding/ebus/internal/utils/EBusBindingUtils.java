@@ -14,6 +14,8 @@ package org.openhab.binding.ebus.internal.utils;
 
 import static org.openhab.binding.ebus.internal.EBusBindingConstants.BINDING_ID;
 
+import java.util.Objects;
+
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.smarthome.core.thing.ChannelUID;
@@ -34,6 +36,10 @@ import de.csdev.ebus.command.IEBusValue;
 @NonNullByDefault
 public class EBusBindingUtils {
 
+    private EBusBindingUtils() {
+        throw new IllegalStateException("Utility class");
+    }
+
     /**
      * Generates a channel type uid
      *
@@ -42,6 +48,7 @@ public class EBusBindingUtils {
      */
     public static ChannelTypeUID generateChannelTypeUID(IEBusValue value) {
         String id = generateValueId(value);
+        Objects.requireNonNull(id);
         return new ChannelTypeUID(BINDING_ID, id);
     }
 
