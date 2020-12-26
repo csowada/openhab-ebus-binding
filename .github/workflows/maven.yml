@@ -4,6 +4,7 @@
 name: Java CI with Maven
 
 on:
+  workflow_dispatch:
   push:
     branches: [ master, develop, master-v2_5, develop-v2_5 ]
   pull_request:
