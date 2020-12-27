@@ -21,7 +21,6 @@ import static org.openhab.binding.ebus.internal.EBusBindingConstants.VALUE_NAME;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -71,6 +70,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.csdev.ebus.cfg.EBusConfigurationReaderException;
 import de.csdev.ebus.command.EBusCommandRegistry;
 import de.csdev.ebus.command.IEBusCommand;
 import de.csdev.ebus.command.IEBusCommandCollection;
@@ -395,7 +395,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase {
             commandRegistry.loadCommandCollectionBundle(new URL(url));
             return true;
 
-        } catch (MalformedURLException e) {
+        } catch (EBusConfigurationReaderException | IOException e) {
             logger.error("Error on loading configuration by url: {}", e.getLocalizedMessage());
         }
         return false;
@@ -410,7 +410,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase {
             commandRegistry.loadCommandCollection(new URL(url));
             return true;
 
-        } catch (MalformedURLException e) {
+        } catch (EBusConfigurationReaderException | IOException e) {
             logger.error("Error on loading configuration by url: {}", e.getLocalizedMessage());
         }
         return false;
@@ -575,7 +575,11 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase {
 
         cmdRegistry.clear();
 
-        cmdRegistry.loadBuildInCommandCollections();
+        try {
+            cmdRegistry.loadBuildInCommandCollections();
+        } catch (EBusConfigurationReaderException | IOException e) {
+            throw new EBusTypeProviderException("Unable to load build-in configurations!", e);
+        }
 
         if (!properties.isEmpty()) {
 
