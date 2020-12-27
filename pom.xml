@@ -11,7 +11,7 @@
 
   <groupId>org.openhab.addons</groupId>
   <artifactId>org.openhab.addons.reactor</artifactId>
-  <version>3.0.10</version>
+  <version>3.0.11-SNAPSHOT</version>
 
   <packaging>pom</packaging>
 
