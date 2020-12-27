@@ -15,10 +15,10 @@ package org.openhab.binding.ebus.internal.handler;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.smarthome.core.thing.Bridge;
-import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.binding.BaseBridgeHandler;
-import org.eclipse.smarthome.core.types.State;
+import org.openhab.core.thing.Bridge;
+import org.openhab.core.thing.ChannelUID;
+import org.openhab.core.thing.binding.BaseBridgeHandler;
+import org.openhab.core.types.State;
 
 /**
  *
@@ -27,7 +27,7 @@ import org.eclipse.smarthome.core.types.State;
 @NonNullByDefault
 public abstract class EBusBaseBridgeHandler extends BaseBridgeHandler implements IEBusBridgeHandler {
 
-    public EBusBaseBridgeHandler(Bridge bridge) {
+    protected EBusBaseBridgeHandler(Bridge bridge) {
         super(bridge);
     }
 

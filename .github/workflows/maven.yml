@@ -4,6 +4,7 @@
 name: Java CI with Maven
 
 on:
+  workflow_dispatch:
   push:
     branches: [ master, develop ]
   pull_request:
@@ -37,7 +38,7 @@ jobs:
     - name: Set up Java
       uses: actions/setup-java@v1
       with:
-        java-version: 1.8
+        java-version: 11
 
     - name: Package maven project
       run: mvn --batch-mode --update-snapshots -Dspotless.check.skip=true install

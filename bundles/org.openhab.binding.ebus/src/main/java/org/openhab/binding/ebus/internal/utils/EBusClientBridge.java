@@ -12,7 +12,9 @@
  */
 package org.openhab.binding.ebus.internal.utils;
 
-import static org.openhab.binding.ebus.internal.EBusBindingConstants.*;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.COMMAND;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.DRIVER_JSERIALCOMM;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.VALUE_NAME;
 
 import java.nio.ByteBuffer;
 import java.util.HashMap;
@@ -21,13 +23,13 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.library.types.DecimalType;
-import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.State;
 import org.openhab.binding.ebus.internal.EBusBindingConstants;
+import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.thing.Channel;
+import org.openhab.core.thing.Thing;
+import org.openhab.core.types.Command;
+import org.openhab.core.types.State;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,8 +137,7 @@ public class EBusClientBridge {
     }
 
     public @Nullable IEBusController getController() {
-        IEBusController controller = client.getController();
-        return controller;
+        return client.getController();
     }
 
     /**
@@ -280,9 +281,9 @@ public class EBusClientBridge {
      */
     public void initClient(Byte masterAddress) {
         // connect the high level client
-        IEBusController controller = this.controller;
-        if (controller != null) {
-            client.connect(controller, masterAddress);
+        IEBusController ctlr = this.controller;
+        if (ctlr != null) {
+            client.connect(ctlr, masterAddress);
         }
     }
 
@@ -290,9 +291,9 @@ public class EBusClientBridge {
      *
      */
     public void startClient() {
-        IEBusController controller = this.controller;
-        if (controller != null) {
-            controller.start();
+        IEBusController ctlr = this.controller;
+        if (ctlr != null) {
+            ctlr.start();
         }
     }
 
@@ -300,9 +301,9 @@ public class EBusClientBridge {
      *
      */
     public void stopClient() {
-        IEBusController controller = this.controller;
-        if (controller != null && !controller.isInterrupted()) {
-            controller.interrupt();
+        IEBusController ctlr = this.controller;
+        if (ctlr != null && !ctlr.isInterrupted()) {
+            ctlr.interrupt();
         }
     }
 }

@@ -17,7 +17,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.io.console.Console;
+import org.openhab.core.io.console.Console;
 
 import de.csdev.ebus.client.EBusClient;
 import de.csdev.ebus.command.EBusCommandUtils;

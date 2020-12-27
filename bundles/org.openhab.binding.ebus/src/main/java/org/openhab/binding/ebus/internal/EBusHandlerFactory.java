@@ -21,19 +21,19 @@ import java.util.Objects;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.config.discovery.DiscoveryService;
-import org.eclipse.smarthome.core.thing.Bridge;
-import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.ThingUID;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
-import org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory;
-import org.eclipse.smarthome.io.transport.serial.SerialPortManager;
 import org.openhab.binding.ebus.internal.handler.EBusBridgeHandler;
 import org.openhab.binding.ebus.internal.handler.EBusHandler;
 import org.openhab.binding.ebus.internal.services.EBusDiscoveryService;
 import org.openhab.binding.ebus.internal.things.IEBusTypeProvider;
+import org.openhab.core.config.discovery.DiscoveryService;
+import org.openhab.core.io.transport.serial.SerialPortManager;
+import org.openhab.core.thing.Bridge;
+import org.openhab.core.thing.Thing;
+import org.openhab.core.thing.ThingTypeUID;
+import org.openhab.core.thing.ThingUID;
+import org.openhab.core.thing.binding.BaseThingHandlerFactory;
+import org.openhab.core.thing.binding.ThingHandler;
+import org.openhab.core.thing.binding.ThingHandlerFactory;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.ComponentContext;
 import org.osgi.service.component.annotations.Component;
@@ -114,7 +114,7 @@ public class EBusHandlerFactory extends BaseThingHandlerFactory {
     public synchronized void registerDiscoveryService(EBusBridgeHandler bridgeHandler) {
         EBusDiscoveryService discoveryService = new EBusDiscoveryService(bridgeHandler);
 
-        Hashtable<@Nullable String, @Nullable Object> hashtable = new Hashtable<@Nullable String, @Nullable Object>();
+        Hashtable<@Nullable String, @Nullable Object> hashtable = new Hashtable<>();
         hashtable.put("service.pid", "discovery.ebus");
 
         ServiceRegistration<?> service = bundleContext.registerService(DiscoveryService.class.getName(),

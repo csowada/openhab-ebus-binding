@@ -12,7 +12,14 @@
  */
 package org.openhab.binding.ebus.internal.handler;
 
-import static org.openhab.binding.ebus.internal.EBusBindingConstants.*;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.COMMAND;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.ITEM_TYPE_DATETIME;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.ITEM_TYPE_NUMBER;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.ITEM_TYPE_STRING;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.ITEM_TYPE_SWITCH;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.ITEM_TYPE_TEMPERATURE;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.POLLING;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.VALUE_NAME;
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
@@ -33,27 +40,27 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.config.core.Configuration;
-import org.eclipse.smarthome.core.library.types.DateTimeType;
-import org.eclipse.smarthome.core.library.types.DecimalType;
-import org.eclipse.smarthome.core.library.types.OnOffType;
-import org.eclipse.smarthome.core.library.types.QuantityType;
-import org.eclipse.smarthome.core.library.types.StringType;
-import org.eclipse.smarthome.core.library.unit.SIUnits;
-import org.eclipse.smarthome.core.thing.Bridge;
-import org.eclipse.smarthome.core.thing.Channel;
-import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.binding.BaseThingHandler;
-import org.eclipse.smarthome.core.types.Command;
-import org.eclipse.smarthome.core.types.RefreshType;
-import org.eclipse.smarthome.core.types.State;
-import org.eclipse.smarthome.core.types.UnDefType;
 import org.openhab.binding.ebus.internal.EBusHandlerConfiguration;
 import org.openhab.binding.ebus.internal.utils.EBusBindingUtils;
 import org.openhab.binding.ebus.internal.utils.EBusClientBridge;
+import org.openhab.core.config.core.Configuration;
+import org.openhab.core.library.types.DateTimeType;
+import org.openhab.core.library.types.DecimalType;
+import org.openhab.core.library.types.OnOffType;
+import org.openhab.core.library.types.QuantityType;
+import org.openhab.core.library.types.StringType;
+import org.openhab.core.library.unit.SIUnits;
+import org.openhab.core.thing.Bridge;
+import org.openhab.core.thing.Channel;
+import org.openhab.core.thing.ChannelUID;
+import org.openhab.core.thing.Thing;
+import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingStatusDetail;
+import org.openhab.core.thing.binding.BaseThingHandler;
+import org.openhab.core.types.Command;
+import org.openhab.core.types.RefreshType;
+import org.openhab.core.types.State;
+import org.openhab.core.types.UnDefType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -263,16 +270,12 @@ public class EBusHandler extends BaseThingHandler {
 
         final Map<String, String> properties = channel.getProperties();
         final String collectionId = thing.getThingTypeUID().getId();
-
-        // final String collectionId = properties.get(COLLECTION);
         final String commandId = properties.get(COMMAND);
 
         try {
             return libClient.generatePollingTelegram(collectionId, commandId, IEBusCommandMethod.Method.GET, thing);
 
-        } catch (EBusTypeException e) {
-            logger.error("error!", e);
-        } catch (EBusCommandException e) {
+        } catch (EBusTypeException | EBusCommandException e) {
             logger.error("error!", e);
         }
 
@@ -425,7 +428,7 @@ public class EBusHandler extends BaseThingHandler {
                 // create a job to send this raw telegram every n seconds
                 ScheduledFuture<?> job = scheduler.scheduleWithFixedDelay(() -> {
                     logger.trace("Poll command \"{}\" with \"{}\" ...", channel.getUID(),
-                            EBusUtils.toHexDumpString(telegram).toString());
+                            EBusUtils.toHexDumpString(telegram));
 
                     try {
                         IEBusController controller = libClient.getController();
@@ -532,9 +535,6 @@ public class EBusHandler extends BaseThingHandler {
 
         EBusHandlerConfiguration configuration = getConfigAs(EBusHandlerConfiguration.class);
         logger.trace("eBUS handler cfg {}", configuration);
-        // if (configuration == null) {
-        // return false;
-        // }
 
         byte sourceAddress = receivedData[0];
         byte destinationAddress = receivedData[1];

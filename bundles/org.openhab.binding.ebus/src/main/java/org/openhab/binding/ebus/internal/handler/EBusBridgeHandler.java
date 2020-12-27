@@ -12,7 +12,9 @@
  */
 package org.openhab.binding.ebus.internal.handler;
 
-import static org.openhab.binding.ebus.internal.EBusBindingConstants.*;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.DRIVER_EBUSD;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.DRIVER_NRJAVASERIAL;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.DRIVER_RAW;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -21,17 +23,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.thing.Bridge;
-import org.eclipse.smarthome.core.thing.ChannelUID;
-import org.eclipse.smarthome.core.thing.Thing;
-import org.eclipse.smarthome.core.thing.ThingStatus;
-import org.eclipse.smarthome.core.thing.ThingStatusDetail;
-import org.eclipse.smarthome.core.thing.ThingTypeUID;
-import org.eclipse.smarthome.core.thing.binding.ThingHandlerService;
-import org.eclipse.smarthome.core.types.Command;
 import org.openhab.binding.ebus.action.EBusActions;
 import org.openhab.binding.ebus.internal.EBusBindingConstants;
 import org.openhab.binding.ebus.internal.EBusBridgeHandlerConfiguration;
@@ -41,6 +34,14 @@ import org.openhab.binding.ebus.internal.services.EBusMetricsService;
 import org.openhab.binding.ebus.internal.things.IEBusTypeProvider;
 import org.openhab.binding.ebus.internal.utils.EBusAdvancedLogging;
 import org.openhab.binding.ebus.internal.utils.EBusClientBridge;
+import org.openhab.core.thing.Bridge;
+import org.openhab.core.thing.ChannelUID;
+import org.openhab.core.thing.Thing;
+import org.openhab.core.thing.ThingStatus;
+import org.openhab.core.thing.ThingStatusDetail;
+import org.openhab.core.thing.ThingTypeUID;
+import org.openhab.core.thing.binding.ThingHandlerService;
+import org.openhab.core.types.Command;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +118,6 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
 
         logger.trace("EBusBridgeHandler.initialize()");
 
-        // IEBusTypeProvider typeProvider = this.handlerFactory.getEBusTypeProvider();
         EBusBridgeHandlerConfiguration configuration = getConfigAs(EBusBridgeHandlerConfiguration.class);
 
         // add the discovery service
@@ -212,7 +212,7 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
         clientBridge.getClient().addEBusEventListener(this);
         clientBridge.getClient().addEBusParserListener(this);
 
-        // startMetricScheduler();
+        // start metric scheduler
         metricsService = new EBusMetricsService(this);
         metricsService.activate();
 
@@ -252,9 +252,8 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
      * java.util.Map, byte[], java.lang.Integer)
      */
     @Override
-    @NonNullByDefault({})
     public void onTelegramResolved(@Nullable IEBusCommandMethod commandChannel,
-            @NonNull Map<@NonNull String, @Nullable Object> result, byte @Nullable [] receivedData,
+            Map<String, @Nullable Object> result, byte @Nullable [] receivedData,
             @Nullable Integer sendQueueId) {
 
         boolean noHandler = true;
@@ -279,15 +278,11 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
 
             EBusHandler handler = (EBusHandler) thing.getHandler();
 
-            if (handler != null) {
-
-                // check if this handler can process this telegram
-                if (handler.supportsTelegram(receivedData, commandChannel)) {
-
-                    // process
-                    handler.handleReceivedTelegram(commandChannel, result, receivedData, sendQueueId);
-                    noHandler = false;
-                }
+            // check if this handler can process this telegram
+            if (handler != null && handler.supportsTelegram(receivedData, commandChannel)) {
+                // process
+                handler.handleReceivedTelegram(commandChannel, result, receivedData, sendQueueId);
+                noHandler = false;
             }
         }
 

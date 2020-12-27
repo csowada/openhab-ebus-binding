@@ -18,13 +18,13 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.eclipse.smarthome.core.thing.binding.ThingActions;
-import org.eclipse.smarthome.core.thing.binding.ThingActionsScope;
-import org.eclipse.smarthome.core.thing.binding.ThingHandler;
 import org.openhab.binding.ebus.internal.handler.EBusBridgeHandler;
 import org.openhab.binding.ebus.internal.utils.EBusClientBridge;
 import org.openhab.core.automation.annotation.ActionInput;
 import org.openhab.core.automation.annotation.RuleAction;
+import org.openhab.core.thing.binding.ThingActions;
+import org.openhab.core.thing.binding.ThingActionsScope;
+import org.openhab.core.thing.binding.ThingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -134,9 +134,7 @@ public class EBusActions implements ThingActions {
                 client.addToSendQueue(EBusCommandUtils.prepareSendTelegram(data));
             }
 
-        } catch (EBusDataException e) {
-            logger.error("error!", e);
-        } catch (EBusControllerException e) {
+        } catch (EBusDataException | EBusControllerException e) {
             logger.error("error!", e);
         }
     }
@@ -195,11 +193,7 @@ public class EBusActions implements ThingActions {
             ByteBuffer buffer = client.buildTelegram(method, destionationAddressByte, values);
             client.addToSendQueue(EBusUtils.toByteArray(buffer));
 
-        } catch (EBusTypeException e) {
-            logger.error("error!", e);
-        } catch (EBusControllerException e) {
-            logger.error("error!", e);
-        } catch (EBusCommandException e) {
+        } catch (EBusTypeException | EBusControllerException | EBusCommandException e) {
             logger.error("error!", e);
         }
     }

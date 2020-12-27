@@ -1,0 +1,69 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Release Binding on GitHub
+
+on:
+  push:
+    # Sequence of patterns matched against refs/tags
+    tags:
+      - "v*" # Push events to matching v*, i.e. v1.0, v20.15.10
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
+
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+
+      - name: Set up Java
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Package maven project
+        run: mvn --batch-mode --update-snapshots -Dspotless.check.skip=true install
+
+      - name: Upload Maven build artifact (JAR)
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifact-jar
+          path: bundles/org.openhab.binding.ebus/target/*.jar
+
+      - name: Remove classes folder to not include it into KAR
+        run: rm -rf bundles/org.openhab.binding.ebus/target/classes
+
+      - name: Build Karaf KAR file embedded with all dependencies
+        run: mvn --batch-mode -Dspotless.check.skip=true karaf:kar -pl :org.openhab.binding.ebus
+
+      - name: Upload Maven build artifact (KAR)
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifact-kar
+          path: bundles/org.openhab.binding.ebus/target/*.kar
+
+      - name: Delete sources for Release
+        run: rm bundles/org.openhab.binding.ebus/target/*-sources.jar
+
+      - name: Create a new GitHub Release
+        uses: docker://antonyurchenko/git-release:latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRAFT_RELEASE: "true"
+          PRE_RELEASE: "false"
+          CHANGELOG_FILE: "CHANGELOG.md"
+          ALLOW_EMPTY_CHANGELOG: "true"
+          ALLOW_TAG_PREFIX: "true"
+        with:
+          args: |
+            bundles/org.openhab.binding.ebus/target/*.jar
+            bundles/org.openhab.binding.ebus/target/*.kar
