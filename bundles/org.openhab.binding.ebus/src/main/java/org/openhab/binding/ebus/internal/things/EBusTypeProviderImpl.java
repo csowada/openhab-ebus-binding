@@ -12,11 +12,15 @@
  */
 package org.openhab.binding.ebus.internal.things;
 
-import static org.openhab.binding.ebus.internal.EBusBindingConstants.*;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.BINDING_PID;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.COMMAND;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.CONFIG_DESCRIPTION_URI_NODE;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.CONFIG_DESCRIPTION_URI_NULL_CHANNEL;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.CONFIG_DESCRIPTION_URI_POLLING_CHANNEL;
+import static org.openhab.binding.ebus.internal.EBusBindingConstants.VALUE_NAME;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
@@ -66,6 +70,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.csdev.ebus.cfg.EBusConfigurationReaderException;
 import de.csdev.ebus.command.EBusCommandRegistry;
 import de.csdev.ebus.command.IEBusCommand;
 import de.csdev.ebus.command.IEBusCommandCollection;
@@ -87,7 +92,7 @@ import de.csdev.ebus.configuration.EBusConfigurationReaderExt;
 @NonNullByDefault
 @Component(service = { IEBusTypeProvider.class, ThingTypeProvider.class, ChannelTypeProvider.class,
         ChannelGroupTypeProvider.class }, configurationPid = BINDING_PID, immediate = true)
-public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusTypeProvider {
+public class EBusTypeProviderImpl extends EBusTypeProviderBase {
 
     private final Logger logger = LoggerFactory.getLogger(EBusTypeProviderImpl.class);
 
@@ -390,7 +395,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
             commandRegistry.loadCommandCollectionBundle(new URL(url));
             return true;
 
-        } catch (MalformedURLException e) {
+        } catch (EBusConfigurationReaderException | IOException e) {
             logger.error("Error on loading configuration by url: {}", e.getLocalizedMessage());
         }
         return false;
@@ -405,7 +410,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
             commandRegistry.loadCommandCollection(new URL(url));
             return true;
 
-        } catch (MalformedURLException e) {
+        } catch (EBusConfigurationReaderException | IOException e) {
             logger.error("Error on loading configuration by url: {}", e.getLocalizedMessage());
         }
         return false;
@@ -570,7 +575,11 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase implements IEBusT
 
         cmdRegistry.clear();
 
-        cmdRegistry.loadBuildInCommandCollections();
+        try {
+            cmdRegistry.loadBuildInCommandCollections();
+        } catch (EBusConfigurationReaderException | IOException e) {
+            throw new EBusTypeProviderException("Unable to load build-in configurations!", e);
+        }
 
         if (!properties.isEmpty()) {
 
