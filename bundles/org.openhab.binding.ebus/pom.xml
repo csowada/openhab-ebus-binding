@@ -7,11 +7,11 @@
   <parent>
     <groupId>org.openhab.addons.bundles</groupId>
     <artifactId>org.openhab.addons.reactor.bundles</artifactId>
-    <version>3.0.10</version>
+    <version>3.0.11</version>
   </parent>
 
   <properties>
-    <ebus.core.version>1.1.4</ebus.core.version>
+    <ebus.core.version>1.1.5</ebus.core.version>
     <ebus.config.version>1.1.4</ebus.config.version>
   </properties>
 
