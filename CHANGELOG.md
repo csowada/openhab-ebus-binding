@@ -3,6 +3,28 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased 
 
+## [3.0.11] - 2021-01-31
+### Changed
+- Removed repository entry in feature.xml to prevent compile time openhab version dependencies
+
+## [2.50.11] - 2021-01-31
+### Changed
+- Removed repository entry in feature.xml to prevent compile time openhab version dependencies
+
+## [3.0.10] - 2020-12-27
+### Added
+- Apply all code changes to support openHAB 3.0
+### Changed
+- Cherry-picked all changes from v2.50.10
+
+## [2.50.10] - 2020-12-27
+### Changed
+- Bumped ``ebus core`` and ``ebus configuration`` lib to version 1.1.4
+- Adjusted some methods to catch new exceptions from ebus core lib
+
+### Fixed
+- Bumped to new ebus libraries to fix a not changing connection status
+
 ## [2.50.9] - 2020-12-25
 ### News
 
