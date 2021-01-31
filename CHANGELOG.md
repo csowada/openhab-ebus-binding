@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased 
 
+## [3.0.11] - 2021-01-31
+### Changed
+- Removed repository entry in feature.xml to prevent compile time openhab version dependencies
+
+## [2.50.11] - 2021-01-31
+### Changed
+- Removed repository entry in feature.xml to prevent compile time openhab version dependencies
+
 ## [3.0.10] - 2020-12-27
 ### Added
 - Apply all code changes to support openHAB 3.0
