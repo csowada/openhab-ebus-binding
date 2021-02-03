@@ -272,13 +272,13 @@ public class EBusHandler extends BaseThingHandler {
     @Nullable
     private ByteBuffer getChannelTelegram(Channel channel) {
 
-        final EBusClientBridge libClient = getLibClient();
-
-        final Map<String, String> properties = channel.getProperties();
-        final String collectionId = thing.getThingTypeUID().getId();
-        final String commandId = properties.get(COMMAND);
-
         try {
+            final EBusClientBridge libClient = getLibClient();
+
+            final Map<String, String> properties = channel.getProperties();
+            final String collectionId = thing.getThingTypeUID().getId();
+            final String commandId = properties.get(COMMAND);
+
             return libClient.generatePollingTelegram(collectionId, commandId, IEBusCommandMethod.Method.GET, thing);
 
         } catch (EBusTypeException | EBusCommandException e) {
@@ -412,9 +412,8 @@ public class EBusHandler extends BaseThingHandler {
             return;
         }
 
-        final EBusClientBridge libClient = getLibClient();
         final String commandId = channel.getProperties().get(COMMAND);
-
+        
         if (StringUtils.isEmpty(commandId)) {
             logger.warn("Invalid channel uid {}", channelUID);
             logger.warn("Invalid channel {}", channel);
@@ -439,6 +438,7 @@ public class EBusHandler extends BaseThingHandler {
                             EBusUtils.toHexDumpString(telegram));
 
                     try {
+                        EBusClientBridge libClient = EBusHandler.this.getLibClient();
                         IEBusController controller = libClient.getController();
                         EBusClient client = libClient.getClient();
                         if (controller != null && controller.getConnectionStatus() == ConnectionStatus.CONNECTED) {
