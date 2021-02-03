@@ -111,7 +111,7 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
     /*
      * (non-Javadoc)
      *
-     * @see org.eclipse.smarthome.core.thing.binding.BaseThingHandler#initialize()
+     * @see org.openhab.core.thing.binding.BaseThingHandler#initialize()
      */
     @Override
     public void initialize() {
@@ -320,8 +320,8 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
      * (non-Javadoc)
      *
      * @see
-     * org.eclipse.smarthome.core.thing.binding.ThingHandler#handleCommand(org.eclipse.smarthome.core.thing.ChannelUID,
-     * org.eclipse.smarthome.core.types.Command)
+     * org.openhab.core.thing.binding.ThingHandler#handleCommand(org.openhab.core.thing.ChannelUID,
+     * org.openhab.core.types.Command)
      */
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {

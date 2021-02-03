@@ -183,7 +183,7 @@ public class EBusHandler extends BaseThingHandler {
     /*
      * (non-Javadoc)
      *
-     * @see org.eclipse.smarthome.core.thing.binding.BaseThingHandler#dispose()
+     * @see org.openhab.core.thing.binding.BaseThingHandler#dispose()
      */
     @Override
     public void dispose() {
@@ -246,11 +246,17 @@ public class EBusHandler extends BaseThingHandler {
 
         // skip channels starting with _ , this is a ebus command that starts with _
         if (StringUtils.startsWith(valueName, "_")) {
+            if (pollingPeriod > 0) {
+                logger.trace("Set interval to 0 due to a leading _ in the valueName ...");
+            }
             pollingPeriod = 0l;
         }
 
         // only for linked channels
         if (!isLinked(channel.getUID())) {
+            if (pollingPeriod > 0) {
+                logger.trace("Set interval to 0, channel is not linked ...");
+            }
             pollingPeriod = 0l;
         }
 
@@ -306,8 +312,8 @@ public class EBusHandler extends BaseThingHandler {
      * (non-Javadoc)
      *
      * @see
-     * org.eclipse.smarthome.core.thing.binding.ThingHandler#handleCommand(org.eclipse.smarthome.core.thing.ChannelUID,
-     * org.eclipse.smarthome.core.types.Command)
+     * org.openhab.core.thing.binding.ThingHandler#handleCommand(org.openhab.core.thing.ChannelUID,
+     * org.openhab.core.types.Command)
      */
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
@@ -361,7 +367,7 @@ public class EBusHandler extends BaseThingHandler {
     /*
      * (non-Javadoc)
      *
-     * @see org.eclipse.smarthome.core.thing.binding.BaseThingHandler#initialize()
+     * @see org.openhab.core.thing.binding.BaseThingHandler#initialize()
      */
     @Override
     public void initialize() {
@@ -394,6 +400,7 @@ public class EBusHandler extends BaseThingHandler {
         Channel channel = thing.getChannel(channelUID.getId());
 
         if (channel == null) {
+            logger.trace("Channel with id {} not found!", channelUID.getId());
             return;
         }
 
@@ -401,6 +408,7 @@ public class EBusHandler extends BaseThingHandler {
 
         // a valid value for polling ?
         if (pollingPeriod == 0) {
+            logger.trace("Channel with id {} has no pooling defined ...", channelUID.getId());
             return;
         }
 
