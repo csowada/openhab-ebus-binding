@@ -256,7 +256,7 @@ public class EBusClientBridge {
                 commandId, type);
 
         if (commandMethod == null) {
-            throw new EBusCommandException("Unable to find command method {} {} {} !", type, commandId, collectionId);
+            throw new EBusCommandException("Unable to find command method {0} {1} {2} !", type, commandId, collectionId);
         }
 
         if (!commandMethod.getType().equals(IEBusCommandMethod.Type.MASTER_SLAVE)) {
