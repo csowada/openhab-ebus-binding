@@ -107,10 +107,14 @@ public class EBusClientBridge {
             conn = new EBusEmulatorConnection();
 
         } else {
-            if (StringUtils.equals(type, DRIVER_JSERIALCOMM)) {
-                conn = new EBusJSerialCommConnection(serialPort);
-            } else {
-                conn = new EBusSerialNRJavaSerialConnection(serialPort);
+            try {
+                if (StringUtils.equals(type, DRIVER_JSERIALCOMM)) {
+                    conn = new EBusJSerialCommConnection(serialPort);
+                } else {
+                    conn = new EBusSerialNRJavaSerialConnection(serialPort);
+                }
+            } catch (NoClassDefFoundError e) {
+                throw new IllegalStateException("Unable to load required serial driver class: " + e.getMessage());
             }
         }
 

@@ -173,12 +173,20 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
 
             if (serialPortDriver == null || serialPortDriver.equals("")
                     || serialPortDriver.equals(EBusBindingConstants.DRIVER_BUILDIN)) {
+
                 // use openhab build in serial driver
                 EBusSerialBuildInSerialConnection connection = new EBusSerialBuildInSerialConnection(
                         handlerFactory.getSerialPortManager(), serialPort);
+
                 clientBridge.setSerialConnection(connection);
             } else {
-                clientBridge.setSerialConnection(serialPort, serialPortDriver);
+                // Add into try-catch block to handle missing libraries for gnu.io and jserial
+                try {
+                    clientBridge.setSerialConnection(serialPort, serialPortDriver);
+                } catch (IllegalStateException e) {
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, e.getLocalizedMessage());
+                    return;
+                }
             }
         }
 
