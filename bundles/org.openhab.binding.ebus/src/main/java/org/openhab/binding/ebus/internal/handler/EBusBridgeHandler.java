@@ -190,6 +190,11 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
             }
         }
 
+        if (masterAddress == null) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "eBUS master address is NULL!");
+            return;
+        }
+
         if (masterAddress != null && !EBusUtils.isMasterAddress(masterAddress)) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                     "eBUS master address is not a valid master address!");
@@ -202,10 +207,6 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
                     "Network address and Port either Serial Port must be set!");
 
             return;
-        }
-
-        if (masterAddress == null) {
-            throw new RuntimeException("Invalid (null) master address!");
         }
 
         clientBridge.initClient(masterAddress);
@@ -248,8 +249,12 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
         // remove discovery service
         handlerFactory.disposeDiscoveryService(this);
 
-        clientBridge.stopClient();
-        clientBridge.getClient().dispose();
+        try {
+            clientBridge.stopClient();
+            clientBridge.getClient().dispose();
+        } catch (Exception e) {
+            logger.error("error!", e);
+        }
     }
 
     /*
