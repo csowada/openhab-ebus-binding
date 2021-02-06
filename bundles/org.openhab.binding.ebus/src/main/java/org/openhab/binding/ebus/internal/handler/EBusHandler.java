@@ -56,6 +56,7 @@ import org.openhab.core.thing.ChannelUID;
 import org.openhab.core.thing.Thing;
 import org.openhab.core.thing.ThingStatus;
 import org.openhab.core.thing.ThingStatusDetail;
+import org.openhab.core.thing.ThingStatusInfo;
 import org.openhab.core.thing.binding.BaseThingHandler;
 import org.openhab.core.types.Command;
 import org.openhab.core.types.RefreshType;
@@ -98,6 +99,92 @@ public class EBusHandler extends BaseThingHandler {
      */
     public EBusHandler(Thing thing) {
         super(thing);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.openhab.core.thing.binding.BaseThingHandler#initialize()
+     */
+    @Override
+    public void initialize() {
+
+        logger.trace("initialize handler {}", this.thing.getUID());
+
+        EBusHandlerConfiguration configuration = getConfigAs(EBusHandlerConfiguration.class);
+
+        Bridge bridge = getBridge();
+        if (bridge == null) {
+            logger.error("No bridge defined!");
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "No bridge defined!");
+
+        } else if (StringUtils.isEmpty(configuration.slaveAddress)) {
+            logger.error("Slave address is not set!");
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Slave address is not set!");
+
+        } else if (bridge.getStatus() != ThingStatus.ONLINE) {
+            logger.info("Bridge is not online yet ...");
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
+
+        } else {
+            logger.debug("Handler is now online ...");
+            updateStatus(ThingStatus.ONLINE);
+            updateAllChannelPollings();
+        }
+
+    }
+
+    @Override
+    public void bridgeStatusChanged(ThingStatusInfo bridgeStatusInfo) {
+        logger.debug("Bridge status changed to {}.", bridgeStatusInfo.getStatus());
+        super.bridgeStatusChanged(bridgeStatusInfo);
+
+        if (bridgeStatusInfo.getStatus() == ThingStatus.ONLINE) {
+            updateAllChannelPollings();
+        } else {
+            disposeAllChannelPollings();
+        }
+    }
+    
+    @Override
+    public void channelLinked(ChannelUID channelUID) {
+        super.channelLinked(channelUID);
+
+        logger.trace("channelLinked {}", channelUID);
+        initializeChannelPolling(channelUID);
+    }
+
+    @Override
+    public void channelUnlinked(ChannelUID channelUID) {
+        super.channelUnlinked(channelUID);
+
+        logger.trace("channelUnlinked {}", channelUID);
+        disposeChannelPolling(channelUID);
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.openhab.core.thing.binding.BaseThingHandler#dispose()
+     */
+    @Override
+    public void dispose() {
+
+        logger.trace("dispose handler {}", this.thing.getUID());
+
+        disposeAllChannelPollings();
+    }
+
+    private void disposeAllChannelPollings() {
+        synchronized(uniqueTelegramPollings) {
+            // Cancel all polling jobs
+            for (Entry<ByteBuffer, ScheduledFuture<?>> entry : uniqueTelegramPollings.entrySet()) {
+                logger.debug("Remove polling job for {}", EBusUtils.toHexDumpString(entry.getKey()));
+                entry.getValue().cancel(true);
+            }
+            uniqueTelegramPollings.clear();
+        }
+        channelPollings.clear();
     }
 
     /**
@@ -164,40 +251,6 @@ public class EBusHandler extends BaseThingHandler {
         updateState(channel.getUID(), state);
     }
 
-    @Override
-    public void channelLinked(ChannelUID channelUID) {
-        super.channelLinked(channelUID);
-
-        logger.trace("channelLinked {}", channelUID);
-        initializeChannelPolling(channelUID);
-    }
-
-    @Override
-    public void channelUnlinked(ChannelUID channelUID) {
-        super.channelUnlinked(channelUID);
-
-        logger.trace("channelUnlinked {}", channelUID);
-        disposeChannelPolling(channelUID);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openhab.core.thing.binding.BaseThingHandler#dispose()
-     */
-    @Override
-    public void dispose() {
-
-        // Cancel all polling jobs
-        for (Entry<ByteBuffer, ScheduledFuture<?>> entry : uniqueTelegramPollings.entrySet()) {
-            logger.info("Remove polling job for {}", EBusUtils.toHexDumpString(entry.getKey()));
-            entry.getValue().cancel(true);
-        }
-
-        uniqueTelegramPollings.clear();
-        channelPollings.clear();
-    }
-
     /**
      * @param channelUID
      */
@@ -241,6 +294,7 @@ public class EBusHandler extends BaseThingHandler {
             // is global polling for this thing enabled?
             if (thingConfiguration.get(POLLING) instanceof Number) {
                 pollingPeriod = ((Number) thingConfiguration.get(POLLING)).longValue();
+                logger.trace("Set global polling period {} for channel {}", pollingPeriod, channel.getUID());
             }
         }
 
@@ -248,14 +302,6 @@ public class EBusHandler extends BaseThingHandler {
         if (StringUtils.startsWith(valueName, "_")) {
             if (pollingPeriod > 0) {
                 logger.trace("Set interval to 0 due to a leading _ in the valueName ...");
-            }
-            pollingPeriod = 0l;
-        }
-
-        // only for linked channels
-        if (!isLinked(channel.getUID())) {
-            if (pollingPeriod > 0) {
-                logger.trace("Set interval to 0, channel is not linked ...");
             }
             pollingPeriod = 0l;
         }
@@ -281,8 +327,10 @@ public class EBusHandler extends BaseThingHandler {
 
             return libClient.generatePollingTelegram(collectionId, commandId, IEBusCommandMethod.Method.GET, thing);
 
-        } catch (EBusTypeException | EBusCommandException e) {
+        } catch (EBusTypeException  e) {  
             logger.error("error!", e);
+        } catch (EBusCommandException e) {
+            // noop
         }
 
         return null;
@@ -297,7 +345,7 @@ public class EBusHandler extends BaseThingHandler {
 
         Bridge bridge = getBridge();
         if (bridge == null) {
-            throw new RuntimeException("No eBUS bridge defined!");
+            throw new IllegalStateException("No eBUS bridge defined!");
         }
 
         EBusBridgeHandler handler = (EBusBridgeHandler) bridge.getHandler();
@@ -305,7 +353,7 @@ public class EBusHandler extends BaseThingHandler {
             return handler.getLibClient();
         }
 
-        throw new RuntimeException("Unable to get a eBUS Client from Backend");
+        throw new IllegalStateException("Unable to get an eBUS Client from Backend");
     }
 
     /*
@@ -323,8 +371,9 @@ public class EBusHandler extends BaseThingHandler {
 
             if (channel != null) {
                 try {
-                    ByteBuffer telegram = getLibClient().generateSetterTelegram(thing, channel, command);
-                    getLibClient().sendTelegram(telegram);
+                    EBusClientBridge libClient = getLibClient();
+                    ByteBuffer telegram = libClient.generateSetterTelegram(thing, channel, command);
+                    libClient.sendTelegram(telegram);
                 } catch (EBusTypeException | EBusControllerException | EBusCommandException e) {
                     logger.error("error!", e);
                 }
@@ -364,31 +413,7 @@ public class EBusHandler extends BaseThingHandler {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openhab.core.thing.binding.BaseThingHandler#initialize()
-     */
-    @Override
-    public void initialize() {
 
-        EBusHandlerConfiguration configuration = getConfigAs(EBusHandlerConfiguration.class);
-
-        Bridge bridge = getBridge();
-        if (bridge == null) {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "No bridge defined!");
-
-        } else if (StringUtils.isEmpty(configuration.slaveAddress)) {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "Slave address is not set!");
-
-        } else if (bridge.getStatus() != ThingStatus.ONLINE) {
-            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.BRIDGE_OFFLINE);
-
-        } else {
-            updateStatus(ThingStatus.ONLINE);
-            updateHandler();
-        }
-    }
 
     /**
      * Initialize the polling for a channel if used
@@ -396,6 +421,11 @@ public class EBusHandler extends BaseThingHandler {
      * @param channelUID
      */
     private void initializeChannelPolling(ChannelUID channelUID) {
+
+        // only for linked channels
+        if (!isLinked(channelUID.getId())) {
+            return;
+        }
 
         Channel channel = thing.getChannel(channelUID.getId());
 
@@ -622,14 +652,12 @@ public class EBusHandler extends BaseThingHandler {
     }
 
     /**
-     * Updates the handler incl. all pollings
+     * Updates all channel pollings
      */
-    public void updateHandler() {
-
-        logger.info("(Re)Initialize all eBUS pollings for {} ...", thing.getUID());
-
-        for (final Channel channel : thing.getChannels()) {
-            updateChannelPolling(channel.getUID());
+    private void updateAllChannelPollings() {
+        synchronized(uniqueTelegramPollings) {
+            logger.info("(Re)Initialize all eBUS pollings for {} ...", thing.getUID());
+            thing.getChannels().forEach(channel -> updateChannelPolling(channel.getUID()));
         }
     }
 }
