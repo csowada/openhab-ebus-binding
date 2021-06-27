@@ -35,9 +35,9 @@ import java.util.concurrent.TimeUnit;
 
 import javax.measure.quantity.Temperature;
 
-import org.apache.commons.lang.BooleanUtils;
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.ebus.internal.EBusHandlerConfiguration;
@@ -323,9 +323,12 @@ public class EBusHandler extends BaseThingHandler {
 
             final Map<String, String> properties = channel.getProperties();
             final String collectionId = thing.getThingTypeUID().getId();
-            final String commandId = properties.get(COMMAND);
+            final @Nullable String commandId = properties.get(COMMAND);
 
-            return libClient.generatePollingTelegram(collectionId, commandId, IEBusCommandMethod.Method.GET, thing);
+            if(commandId != null) {
+                return libClient.generatePollingTelegram(collectionId, commandId, IEBusCommandMethod.Method.GET, thing);
+            }
+            return null;
 
         } catch (EBusTypeException  e) {  
             logger.error("error!", e);

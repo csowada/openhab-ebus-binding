@@ -15,7 +15,6 @@ package org.openhab.binding.ebus.internal.serial;
 import java.io.IOException;
 import java.util.TooManyListenersException;
 
-import org.apache.commons.io.IOUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.io.transport.serial.PortInUseException;
@@ -29,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.csdev.ebus.core.connection.AbstractEBusConnection;
+import de.csdev.ebus.utils.CommonsUtils;
 
 /**
  * @author Christian Sowada - Initial contribution
@@ -133,14 +133,14 @@ public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
             @Override
             public void run() {
 
-                IOUtils.closeQuietly(inputStream);
+                CommonsUtils.closeQuietly(inputStream);
 
                 if (outputStream != null) {
                     try {
                         outputStream.flush();
                     } catch (IOException e) {
                     }
-                    IOUtils.closeQuietly(outputStream);
+                    CommonsUtils.closeQuietly(outputStream);
                 }
 
                 SerialPort serialPort = EBusSerialBuildInSerialConnection.this.serialPort;
