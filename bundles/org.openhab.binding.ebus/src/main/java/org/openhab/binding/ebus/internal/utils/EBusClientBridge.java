@@ -20,7 +20,7 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.ebus.internal.EBusBindingConstants;
@@ -107,10 +107,14 @@ public class EBusClientBridge {
             conn = new EBusEmulatorConnection();
 
         } else {
-            if (StringUtils.equals(type, DRIVER_JSERIALCOMM)) {
-                conn = new EBusJSerialCommConnection(serialPort);
-            } else {
-                conn = new EBusSerialNRJavaSerialConnection(serialPort);
+            try {
+                if (StringUtils.equals(type, DRIVER_JSERIALCOMM)) {
+                    conn = new EBusJSerialCommConnection(serialPort);
+                } else {
+                    conn = new EBusSerialNRJavaSerialConnection(serialPort);
+                }
+            } catch (NoClassDefFoundError e) {
+                throw new IllegalStateException("Unable to load required serial driver class: " + e.getMessage());
             }
         }
 
@@ -256,7 +260,7 @@ public class EBusClientBridge {
                 commandId, type);
 
         if (commandMethod == null) {
-            throw new EBusCommandException("Unable to find command method {} {} {} !", type, commandId, collectionId);
+            throw new EBusCommandException("Unable to find command method {0} {1} {2} !", type, commandId, collectionId);
         }
 
         if (!commandMethod.getType().equals(IEBusCommandMethod.Type.MASTER_SLAVE)) {

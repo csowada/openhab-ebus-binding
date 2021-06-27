@@ -91,7 +91,7 @@ public class EBusHandlerFactory extends BaseThingHandlerFactory {
      * (non-Javadoc)
      *
      * @see
-     * org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory#createHandler(org.eclipse.smarthome.core.thing.
+     * org.openhab.core.thing.binding.BaseThingHandlerFactory#createHandler(org.openhab.core.thing.
      * Thing)
      */
     @Override
@@ -147,7 +147,7 @@ public class EBusHandlerFactory extends BaseThingHandlerFactory {
      * (non-Javadoc)
      *
      * @see
-     * org.eclipse.smarthome.core.thing.binding.BaseThingHandlerFactory#removeHandler(org.eclipse.smarthome.core.thing.
+     * org.openhab.core.thing.binding.BaseThingHandlerFactory#removeHandler(org.openhab.core.thing.
      * binding.ThingHandler)
      */
     @Override
@@ -161,7 +161,7 @@ public class EBusHandlerFactory extends BaseThingHandlerFactory {
      * (non-Javadoc)
      *
      * @see
-     * org.eclipse.smarthome.core.thing.binding.ThingHandlerFactory#supportsThingType(org.eclipse.smarthome.core.thing.
+     * org.openhab.core.thing.binding.ThingHandlerFactory#supportsThingType(org.openhab.core.thing.
      * ThingTypeUID)
      */
     @Override

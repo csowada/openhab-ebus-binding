@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased 
 
+## [3.1.12] - 2021-06-27
+### Changed
+- Fix polling isue
+- Move to commons lang3 lib
+- Smaller changes
+
 ## [3.0.11] - 2021-01-31
 ### Changed
 - Removed repository entry in feature.xml to prevent compile time openhab version dependencies

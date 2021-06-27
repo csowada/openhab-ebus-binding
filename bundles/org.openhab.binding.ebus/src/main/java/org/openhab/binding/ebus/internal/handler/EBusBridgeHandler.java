@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.ebus.action.EBusActions;
@@ -92,7 +92,7 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
         EBusCommandRegistry registry = typeProvider.getCommandRegistry();
 
         if (registry == null) {
-            throw new RuntimeException("Command Registry not available!");
+            throw new IllegalStateException("Command Registry not available!");
         }
 
         clientBridge = new EBusClientBridge(registry);
@@ -111,7 +111,7 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
     /*
      * (non-Javadoc)
      *
-     * @see org.eclipse.smarthome.core.thing.binding.BaseThingHandler#initialize()
+     * @see org.openhab.core.thing.binding.BaseThingHandler#initialize()
      */
     @Override
     public void initialize() {
@@ -173,39 +173,46 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
 
             if (serialPortDriver == null || serialPortDriver.equals("")
                     || serialPortDriver.equals(EBusBindingConstants.DRIVER_BUILDIN)) {
+
                 // use openhab build in serial driver
                 EBusSerialBuildInSerialConnection connection = new EBusSerialBuildInSerialConnection(
                         handlerFactory.getSerialPortManager(), serialPort);
+
                 clientBridge.setSerialConnection(connection);
             } else {
-                clientBridge.setSerialConnection(serialPort, serialPortDriver);
+                // Add into try-catch block to handle missing libraries for gnu.io and jserial
+                try {
+                    clientBridge.setSerialConnection(serialPort, serialPortDriver);
+                } catch (IllegalStateException e) {
+                    updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.NONE, e.getLocalizedMessage());
+                    return;
+                }
             }
+        }
+
+        if (masterAddress == null) {
+            updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR, "eBUS master address is NULL!");
+            return;
         }
 
         if (masterAddress != null && !EBusUtils.isMasterAddress(masterAddress)) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                     "eBUS master address is not a valid master address!");
-
             return;
         }
 
         if (!clientBridge.isConnectionValid()) {
             updateStatus(ThingStatus.OFFLINE, ThingStatusDetail.CONFIGURATION_ERROR,
                     "Network address and Port either Serial Port must be set!");
-
             return;
-        }
-
-        if (masterAddress == null) {
-            throw new RuntimeException("Invalid (null) master address!");
         }
 
         clientBridge.initClient(masterAddress);
 
         // add before other listeners, better to read in logs
-        EBusAdvancedLogging advanceLogger = this.advanceLogger;
-        if (advanceLogger != null) {
-            clientBridge.getClient().addEBusParserListener(advanceLogger);
+        EBusAdvancedLogging aLogger = this.advanceLogger;
+        if (aLogger != null) {
+            clientBridge.getClient().addEBusParserListener(aLogger);
         }
 
         // add listeners
@@ -227,12 +234,12 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
 
         metricsService.deactivate();
 
-        EBusAdvancedLogging advanceLogger = this.advanceLogger;
-        if (advanceLogger != null) {
+        EBusAdvancedLogging aLogger = this.advanceLogger;
+        if (aLogger != null) {
 
-            clientBridge.getClient().removeEBusParserListener(advanceLogger);
+            clientBridge.getClient().removeEBusParserListener(aLogger);
 
-            advanceLogger.close();
+            aLogger.close();
             this.advanceLogger = null;
 
         }
@@ -240,21 +247,24 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
         // remove discovery service
         handlerFactory.disposeDiscoveryService(this);
 
-        clientBridge.stopClient();
-        clientBridge.getClient().dispose();
+        try {
+            clientBridge.stopClient();
+            clientBridge.getClient().dispose();
+        } catch (Exception e) {
+            logger.error("error!", e);
+        }
     }
 
     /*
      * (non-Javadoc)
      *
      * @see
-     * de.csdev.ebus.service.parser.IEBusParserListener#onTelegramResolved(de.csdev.ebus.command.IEBusCommandMethod,
-     * java.util.Map, byte[], java.lang.Integer)
+     * de.csdev.ebus.service.parser.IEBusParserListener#onTelegramResolved(de.csdev.
+     * ebus.command.IEBusCommandMethod, java.util.Map, byte[], java.lang.Integer)
      */
     @Override
-    public void onTelegramResolved(@Nullable IEBusCommandMethod commandChannel,
-            Map<String, @Nullable Object> result, byte @Nullable [] receivedData,
-            @Nullable Integer sendQueueId) {
+    public void onTelegramResolved(@Nullable IEBusCommandMethod commandChannel, Map<String, @Nullable Object> result,
+            byte @Nullable [] receivedData, @Nullable Integer sendQueueId) {
 
         boolean noHandler = true;
 
@@ -295,8 +305,9 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
     /*
      * (non-Javadoc)
      *
-     * @see de.csdev.ebus.core.IEBusConnectorEventListener#onTelegramException(de.csdev.ebus.core.EBusDataException,
-     * java.lang.Integer)
+     * @see
+     * de.csdev.ebus.core.IEBusConnectorEventListener#onTelegramException(de.csdev.
+     * ebus.core.EBusDataException, java.lang.Integer)
      */
     @Override
     public void onTelegramException(@Nullable EBusDataException e, @Nullable Integer sendQueueId) {
@@ -306,7 +317,9 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
     /*
      * (non-Javadoc)
      *
-     * @see de.csdev.ebus.core.IEBusConnectorEventListener#onConnectionException(java.lang.Exception)
+     * @see
+     * de.csdev.ebus.core.IEBusConnectorEventListener#onConnectionException(java.
+     * lang.Exception)
      */
     @Override
     public void onConnectionException(@Nullable Exception e) {
@@ -320,8 +333,8 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
      * (non-Javadoc)
      *
      * @see
-     * org.eclipse.smarthome.core.thing.binding.ThingHandler#handleCommand(org.eclipse.smarthome.core.thing.ChannelUID,
-     * org.eclipse.smarthome.core.types.Command)
+     * org.openhab.core.thing.binding.ThingHandler#handleCommand(org.openhab.core.
+     * thing.ChannelUID, org.openhab.core.types.Command)
      */
     @Override
     public void handleCommand(ChannelUID channelUID, Command command) {
@@ -331,7 +344,9 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
     /*
      * (non-Javadoc)
      *
-     * @see de.csdev.ebus.core.IEBusConnectorEventListener#onTelegramReceived(byte[], java.lang.Integer)
+     * @see
+     * de.csdev.ebus.core.IEBusConnectorEventListener#onTelegramReceived(byte[],
+     * java.lang.Integer)
      */
     @Override
     public void onTelegramReceived(byte @Nullable [] receivedData, @Nullable Integer sendQueueId) {
@@ -350,8 +365,10 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
     /*
      * (non-Javadoc)
      *
-     * @see de.csdev.ebus.service.parser.IEBusParserListener#onTelegramResolveFailed(de.csdev.ebus.command.
-     * IEBusCommandMethod, byte[], java.lang.Integer, java.lang.String)
+     * @see
+     * de.csdev.ebus.service.parser.IEBusParserListener#onTelegramResolveFailed(de.
+     * csdev.ebus.command. IEBusCommandMethod, byte[], java.lang.Integer,
+     * java.lang.String)
      */
     @Override
     public void onTelegramResolveFailed(@Nullable IEBusCommandMethod commandChannel, byte @Nullable [] receivedData,

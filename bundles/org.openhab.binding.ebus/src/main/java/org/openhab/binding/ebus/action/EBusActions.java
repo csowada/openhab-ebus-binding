@@ -15,7 +15,7 @@ package org.openhab.binding.ebus.action;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.binding.ebus.internal.handler.EBusBridgeHandler;

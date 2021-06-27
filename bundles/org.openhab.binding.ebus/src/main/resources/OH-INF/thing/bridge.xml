@@ -123,12 +123,12 @@
 			</channel>
 
 			<channel typeId="metricsFloat" id="failedRatio">
-				<label>Failed telegrams ratio</label>
+				<label>Failed telegrams</label>
 				<description>Failed telegram ration</description>
 			</channel>
 
 			<channel typeId="metricsFloat" id="unresolvedRatio">
-				<label>Unresolved telegrams ratio</label>
+				<label>Unresolved telegrams</label>
 				<description>Unresolved telegram ratio</description>
 			</channel>
 

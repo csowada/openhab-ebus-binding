@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.openhab.addons</groupId>
     <artifactId>org.openhab.addons.reactor</artifactId>
-    <version>3.0.11</version>
+    <version>3.1.12</version>
   </parent>
 
   <groupId>org.openhab.addons.bundles</groupId>
@@ -20,7 +20,17 @@
     <module>org.openhab.binding.ebus</module>
   </modules>
 
+  <properties>
+    <m2e.jdt.annotationpath>target/dependency</m2e.jdt.annotationpath>
+    <dep.noembedding/>
+  </properties>
+
   <dependencies>
+    <dependency>
+      <groupId>org.lastnpe.eea</groupId>
+      <artifactId>eea-all</artifactId>
+      <version>${eea.version}</version>
+    </dependency>
     <!-- openHAB core -->
     <dependency>
       <groupId>org.openhab.core.bom</groupId>
@@ -33,6 +43,12 @@
       <artifactId>org.openhab.core.bom.openhab-core</artifactId>
       <type>pom</type>
       <scope>provided</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-net</groupId>
+          <artifactId>commons-net</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.openhab.core.bom</groupId>
@@ -64,10 +80,6 @@
       <scope>provided</scope>
     </dependency>
   </dependencies>
-
-  <properties>
-    <dep.noembedding/>
-  </properties>
 
   <build>
     <pluginManagement>
@@ -173,13 +185,29 @@
             <configuration>
               <includeScope>runtime</includeScope>
               <includeTypes>jar</includeTypes>
-              <excludeGroupIds>javax.activation,org.apache.karaf.features</excludeGroupIds>
+              <excludeGroupIds>javax.activation,org.apache.karaf.features,org.lastnpe.eea</excludeGroupIds>
               <excludeArtifactIds>${dep.noembedding}</excludeArtifactIds>
               <outputDirectory>${project.build.directory}/classes</outputDirectory>
               <overWriteReleases>true</overWriteReleases>
               <overWriteSnapshots>true</overWriteSnapshots>
               <excludeTransitive>true</excludeTransitive>
               <type>jar</type>
+            </configuration>
+          </execution>
+          <execution>
+            <id>unpack-eea</id>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>org.lastnpe.eea</groupId>
+                  <artifactId>eea-all</artifactId>
+                  <version>${eea.version}</version>
+                  <overWrite>true</overWrite>
+                </artifactItem>
+              </artifactItems>
             </configuration>
           </execution>
         </executions>
