@@ -20,4 +20,7 @@
     <suppress files=".+org.openhab.binding.yeelight.+" checks="OutsideOfLibExternalLibrariesCheck" />
     <!-- suppress header checks for imported and patched apache commons-io files in logreader binding -->
     <suppress files=".+org.openhab.binding.logreader.internal.thirdparty.commonsio.+" checks="ParameterizedRegexpHeaderCheck|AuthorTagCheck" />
+
+    <!-- supress check for ebus binding, our feature name starts with prefix "x-" -->
+    <suppress files=".+org.openhab.binding.ebus.+" checks="KarafAddonFeatureCheck"/>
 </suppressions>
