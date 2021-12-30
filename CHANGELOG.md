@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased 
 
+## [3.2.14] - 2021-12-30
+### Changed
+- Update dependencies to openHab 3.2.0 release
+
 ## [3.1.13] - 2021-06-28
 ### Changed
 - Update dependencies to openHab 3.1.0 release
