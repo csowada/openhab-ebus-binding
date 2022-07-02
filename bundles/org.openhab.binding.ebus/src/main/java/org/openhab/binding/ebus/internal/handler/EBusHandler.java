@@ -262,7 +262,9 @@ public class EBusHandler extends BaseThingHandler {
             if (!channelPollings.containsValue(telegram)) {
                 // remove last
                 ScheduledFuture<?> future = uniqueTelegramPollings.remove(telegram);
-                future.cancel(true);
+                if (future != null) {
+                    future.cancel(true);
+                }
 
                 logger.debug("Cancel polling job for \"{}\" ...", channelUID);
             } else {

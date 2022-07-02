@@ -321,10 +321,13 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
                 }
                 console.print(sb.toString());
             }
-        } catch (EBusControllerException e) {
-            console.print(e.getMessage());
-        } catch (EBusTypeProviderException e) {
-            console.print(e.getMessage());
+        } catch (EBusControllerException | EBusTypeProviderException e) {
+            String msg = e.getMessage();
+            if(msg != null) {
+                console.print(msg);
+            } else {
+                console.print(e.toString());
+            }
         }
     }
 

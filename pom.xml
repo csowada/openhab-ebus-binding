@@ -11,7 +11,7 @@
 
   <groupId>org.openhab.addons</groupId>
   <artifactId>org.openhab.addons.reactor</artifactId>
-  <version>3.2.15-SNAPSHOT</version>
+  <version>3.3.16</version>
 
   <packaging>pom</packaging>
 
@@ -77,15 +77,15 @@
     <maven.compiler.target>${oh.java.version}</maven.compiler.target>
     <maven.compiler.compilerVersion>${oh.java.version}</maven.compiler.compilerVersion>
 
-    <ohc.version>3.2.0</ohc.version>
-    <bnd.version>6.1.0</bnd.version>
+    <ohc.version>3.4.0-SNAPSHOT</ohc.version>
+    <bnd.version>6.3.0</bnd.version>
     <commons.net.version>3.7.2</commons.net.version>
     <eea.version>2.2.1</eea.version>
     <jackson.version>2.12.5</jackson.version>
-    <karaf.version>4.3.4</karaf.version>
+    <karaf.version>4.3.7</karaf.version>
     <netty.version>4.1.72.Final</netty.version>
     <okhttp.version>3.14.9</okhttp.version>
-    <sat.version>0.12.0</sat.version>
+    <sat.version>0.13.0</sat.version>
     <spotless.version>2.0.3</spotless.version>
 
     <bnd.importpackage/>
@@ -307,7 +307,7 @@ Import-Package: \\
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.8.1</version>
+          <version>3.10.1</version>
           <configuration>
             <compilerId>eclipse</compilerId>
             <compilerArguments>
@@ -325,12 +325,12 @@ Import-Package: \\
             <dependency>
               <groupId>org.codehaus.plexus</groupId>
               <artifactId>plexus-compiler-eclipse</artifactId>
-              <version>2.8.8</version>
+              <version>2.11.1</version>
             </dependency>
             <dependency>
               <groupId>org.eclipse.jdt</groupId>
               <artifactId>ecj</artifactId>
-              <version>3.23.0</version>
+              <version>3.28.0</version>
             </dependency>
           </dependencies>
         </plugin>
@@ -400,6 +400,10 @@ Import-Package: \\
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.0.0-M5</version>
           <configuration>
+            <argLine>
+              --add-opens java.base/java.lang=ALL-UNNAMED
+              --add-opens java.base/java.util=ALL-UNNAMED
+            </argLine>
             <systemPropertyVariables>
               <junit.jupiter.execution.timeout.default>15 m</junit.jupiter.execution.timeout.default>
             </systemPropertyVariables>
@@ -440,7 +444,7 @@ Import-Package: \\
             </excludes>
             <useDefaultExcludes>true</useDefaultExcludes>
             <properties>
-              <year>2021</year>
+              <year>2022</year>
             </properties>
             <encoding>UTF-8</encoding>
           </configuration>
@@ -507,7 +511,7 @@ Import-Package: \\
                   <pluginExecutionFilter>
                     <groupId>org.commonjava.maven.plugins</groupId>
                     <artifactId>directory-maven-plugin</artifactId>
-                    <versionRange>[0.3.1,)</versionRange>
+                    <versionRange>[1.0,)</versionRange>
                     <goals>
                       <goal>directory-of</goal>
                     </goals>
@@ -660,7 +664,7 @@ Import-Package: \\
       <plugin>
         <groupId>org.commonjava.maven.plugins</groupId>
         <artifactId>directory-maven-plugin</artifactId>
-        <version>0.3.1</version>
+        <version>1.0</version>
         <executions>
           <execution>
             <id>directories</id>
@@ -691,7 +695,7 @@ Import-Package: \\
             <configuration>
               <rules>
                 <requireJavaVersion>
-                  <version>[11.0,12.0)</version>
+                  <version>[11.0,18.0)</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
