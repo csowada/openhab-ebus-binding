@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.openhab.addons</groupId>
     <artifactId>org.openhab.addons.reactor</artifactId>
-    <version>3.2.14</version>
+    <version>4.0.0-SNAPSHOT</version>
   </parent>
 
   <groupId>org.openhab.addons.bundles</groupId>
@@ -17,6 +17,7 @@
   <name>openHAB Add-ons :: Bundles</name>
 
   <modules>
+    <!-- bindings -->
     <module>org.openhab.binding.ebus</module>
   </modules>
 
@@ -185,6 +186,7 @@
             <configuration>
               <includeScope>runtime</includeScope>
               <includeTypes>jar</includeTypes>
+              <excludes>**/module-info.class</excludes>
               <excludeGroupIds>javax.activation,org.apache.karaf.features,org.lastnpe.eea</excludeGroupIds>
               <excludeArtifactIds>${dep.noembedding}</excludeArtifactIds>
               <outputDirectory>${project.build.directory}/classes</outputDirectory>
@@ -214,48 +216,8 @@
       </plugin>
     </plugins>
   </build>
+
   <profiles>
-    <!-- remove unused classes / shrink jar -->
-    <profile>
-      <id>shrink-bundle</id>
-      <activation>
-        <file>
-          <exists>shrinkBundle.profile</exists>
-        </file>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>com.github.wvengen</groupId>
-            <artifactId>proguard-maven-plugin</artifactId>
-            <version>2.1.1</version>
-            <executions>
-              <execution>
-                <id>shrink-bundle</id>
-                <phase>package</phase>
-                <goals>
-                  <goal>proguard</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <obfuscate>false</obfuscate>
-              <injarNotExistsSkip>true</injarNotExistsSkip>
-              <outputDirectory>${project.build.directory}</outputDirectory>
-              <libs>
-                <lib>${java.home}/lib/rt.jar</lib>
-              </libs>
-              <options>
-                <option>-dontwarn</option>
-                <option>-dontnote</option>
-                <option>-keep,includedescriptorclasses public class org.openhab.** { *; }</option>
-                <option>-printusage ${project.build.directory}/shrink_log.txt</option>
-              </options>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
     <!-- suppress embedding of dependencies -->
     <profile>
       <id>no-embed-dependencies</id>
@@ -280,4 +242,5 @@
       </build>
     </profile>
   </profiles>
+
 </project>

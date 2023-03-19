@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <features name="org.openhab.binding.ebus-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.4.0">
-	<feature name="x-openhab-binding-ebus" description="eBUS Binding" version="${project.version}">
+
+	<repository>mvn:org.openhab.core.features.karaf/org.openhab.core.features.karaf.openhab-core/${ohc.version}/xml/features</repository>
+
+	<feature name="openhab-binding-ebus" description="eBUS Binding" version="${project.version}">
 		<feature>openhab-runtime-base</feature>
 		<feature>openhab-transport-serial</feature>
 		<bundle>mvn:de.cs-dev.ebus/ebus-core/${ebus.core.version}</bundle>
 		<bundle>mvn:de.cs-dev.ebus/ebus-configuration/${ebus.config.version}</bundle>
-		<bundle>mvn:com.fazecast/jSerialComm/2.5.3</bundle>
+		<bundle>mvn:com.fazecast/jSerialComm/2.9.3</bundle>
 		<bundle start-level="80">mvn:org.openhab.addons.bundles/org.openhab.binding.ebus/${project.version}</bundle>
 	</feature>
 </features>
