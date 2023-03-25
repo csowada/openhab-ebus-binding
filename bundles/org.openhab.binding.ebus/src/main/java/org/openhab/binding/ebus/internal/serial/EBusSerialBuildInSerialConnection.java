@@ -20,7 +20,6 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.openhab.core.io.transport.serial.PortInUseException;
 import org.openhab.core.io.transport.serial.SerialPort;
 import org.openhab.core.io.transport.serial.SerialPortEvent;
-import org.openhab.core.io.transport.serial.SerialPortEventListener;
 import org.openhab.core.io.transport.serial.SerialPortIdentifier;
 import org.openhab.core.io.transport.serial.SerialPortManager;
 import org.openhab.core.io.transport.serial.UnsupportedCommOperationException;
@@ -37,6 +36,7 @@ import de.csdev.ebus.utils.CommonsUtils;
 @NonNullByDefault
 public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
 
+    @NonNullByDefault({})
     private final Logger logger = LoggerFactory.getLogger(EBusSerialBuildInSerialConnection.class);
 
     /** The serial object */
@@ -69,36 +69,36 @@ public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
                 logger.info(
                         "Use openhab build-in serial driver .................................................................");
 
-                SerialPort serialPort = portIdentifier.open(this.getClass().getName(), 3000);
-                serialPort.setSerialPortParams(2400, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
+                SerialPort sport = portIdentifier.open(this.getClass().getName(), 3000);
+                sport.setSerialPortParams(2400, SerialPort.DATABITS_8, SerialPort.STOPBITS_1,
                         SerialPort.PARITY_NONE);
 
-                serialPort.enableReceiveThreshold(1);
-                serialPort.disableReceiveTimeout();
+                        sport.enableReceiveThreshold(1);
+                        sport.disableReceiveTimeout();
 
-                outputStream = serialPort.getOutputStream();
-                inputStream = serialPort.getInputStream();
+                outputStream = sport.getOutputStream();
+                inputStream = sport.getInputStream();
 
-                outputStream.flush();
-                if (inputStream.markSupported()) {
+                if (outputStream != null) {
+                    outputStream.flush();
+                }
+
+                if (inputStream != null && inputStream.markSupported()) {
                     inputStream.reset();
                 }
 
                 // use event to let readByte wait until data is available, optimize cpu usage
-                serialPort.addEventListener(new SerialPortEventListener() {
-                    @Override
-                    public void serialEvent(SerialPortEvent event) {
-                        if (event.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
-                            synchronized (inputStream) {
-                                inputStream.notifyAll();
-                            }
+                sport.addEventListener(event -> {
+                    if (event.getEventType() == SerialPortEvent.DATA_AVAILABLE) {
+                        synchronized (inputStream) {
+                            inputStream.notifyAll();
                         }
                     }
                 });
 
-                serialPort.notifyOnDataAvailable(true);
+                sport.notifyOnDataAvailable(true);
 
-                this.serialPort = serialPort;
+                this.serialPort = sport;
                 return true;
             }
 
@@ -128,35 +128,32 @@ public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
 
         // run the serial.close in a new not-interrupted thread to
         // prevent an IllegalMonitorStateException error
-        Thread shutdownThread = new Thread(new Runnable() {
+        Thread shutdownThread = new Thread((Runnable) () -> {
 
-            @Override
-            public void run() {
+            CommonsUtils.closeQuietly(inputStream);
 
-                CommonsUtils.closeQuietly(inputStream);
-
-                if (outputStream != null) {
-                    try {
-                        outputStream.flush();
-                    } catch (IOException e) {
-                    }
-                    CommonsUtils.closeQuietly(outputStream);
+            if (outputStream != null) {
+                try {
+                    outputStream.flush();
+                } catch (IOException e) {
+                    // noop
                 }
-
-                SerialPort serialPort = EBusSerialBuildInSerialConnection.this.serialPort;
-
-                if (serialPort != null) {
-
-                    serialPort.notifyOnDataAvailable(false);
-                    serialPort.removeEventListener();
-
-                    serialPort.close();
-                    EBusSerialBuildInSerialConnection.this.serialPort = null;
-                }
-
-                inputStream = null;
-                outputStream = null;
+                CommonsUtils.closeQuietly(outputStream);
             }
+
+            SerialPort sport = this.serialPort;
+
+            if (sport != null) {
+
+                sport.notifyOnDataAvailable(false);
+                sport.removeEventListener();
+
+                sport.close();
+                this.serialPort = null;
+            }
+
+            inputStream = null;
+            outputStream = null;
         }, "eBUS serial shutdown thread");
 
         shutdownThread.start();
@@ -165,6 +162,7 @@ public class EBusSerialBuildInSerialConnection extends AbstractEBusConnection {
             // wait for shutdown
             shutdownThread.join(2000);
         } catch (InterruptedException e) {
+            // noop
         }
 
         return true;

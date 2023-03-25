@@ -53,6 +53,7 @@ import de.csdev.ebus.utils.EBusUtils;
 @NonNullByDefault
 public class EBusDiscoveryService extends AbstractDiscoveryService implements IEBusDeviceTableListener {
 
+    @SuppressWarnings({"null"})
     private final Logger logger = LoggerFactory.getLogger(EBusDiscoveryService.class);
 
     private IEBusBridgeHandler bridgeHandle;
@@ -126,7 +127,7 @@ public class EBusDiscoveryService extends AbstractDiscoveryService implements IE
         String id = slaveAddress;
 
         if (StringUtils.isEmpty(id)) {
-            logger.debug("No slave address for device available! {}", device.toString());
+            logger.debug("No slave address for device available! {}", device);
             return;
         }
 

@@ -58,6 +58,7 @@ import de.csdev.ebus.utils.EBusUtils;
 @NonNullByDefault
 public class EBusClientBridge {
 
+    @SuppressWarnings({"null"})
     private final Logger logger = LoggerFactory.getLogger(EBusClientBridge.class);
 
     private @Nullable IEBusController controller;

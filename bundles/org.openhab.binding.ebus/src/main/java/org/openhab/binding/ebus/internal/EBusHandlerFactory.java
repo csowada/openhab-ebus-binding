@@ -14,6 +14,7 @@ package org.openhab.binding.ebus.internal;
 
 import static org.openhab.binding.ebus.internal.EBusBindingConstants.BINDING_ID;
 
+import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -55,6 +56,7 @@ import de.csdev.ebus.core.EBusVersion;
 @Component(service = { ThingHandlerFactory.class }, immediate = true)
 public class EBusHandlerFactory extends BaseThingHandlerFactory {
 
+    @SuppressWarnings({"null"})
     private final Logger logger = LoggerFactory.getLogger(EBusHandlerFactory.class);
 
     private Map<ThingUID, @Nullable ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();
@@ -67,6 +69,7 @@ public class EBusHandlerFactory extends BaseThingHandlerFactory {
     @Reference
     private SerialPortManager serialPortManager;
 
+    @SuppressWarnings({"null"})
     public SerialPortManager getSerialPortManager() {
         return Objects.requireNonNull(serialPortManager, "serialPortManager");
     }
@@ -99,13 +102,13 @@ public class EBusHandlerFactory extends BaseThingHandlerFactory {
     protected ThingHandler createHandler(Thing thing) {
 
         if (EBusBridgeHandler.SUPPORTED_THING_TYPES.contains(thing.getThingTypeUID())) {
-            return new EBusBridgeHandler((Bridge) thing, typeProvider, this);
+            return new EBusBridgeHandler((Bridge) thing, this.typeProvider, this);
 
         } else if (BINDING_ID.equals(thing.getUID().getBindingId())) {
             return new EBusHandler(thing);
 
         }
-        throw new RuntimeException("Unable to create a Handler for " + thing.getThingTypeUID());
+        throw new IllegalStateException("Unable to create a Handler for " + thing.getThingTypeUID());
     }
 
     /**
@@ -114,7 +117,7 @@ public class EBusHandlerFactory extends BaseThingHandlerFactory {
     public synchronized void registerDiscoveryService(EBusBridgeHandler bridgeHandler) {
         EBusDiscoveryService discoveryService = new EBusDiscoveryService(bridgeHandler);
 
-        Hashtable<@Nullable String, @Nullable Object> hashtable = new Hashtable<>();
+        Dictionary<@Nullable String, @Nullable Object> hashtable = new Hashtable<>();
         hashtable.put("service.pid", "discovery.ebus");
 
         ServiceRegistration<?> service = bundleContext.registerService(DiscoveryService.class.getName(),
