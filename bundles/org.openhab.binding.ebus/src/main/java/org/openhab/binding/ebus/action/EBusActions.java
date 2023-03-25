@@ -46,6 +46,7 @@ import de.csdev.ebus.utils.EBusUtils;
 @NonNullByDefault
 public class EBusActions implements ThingActions {
 
+    @NonNullByDefault({})
     private final Logger logger = LoggerFactory.getLogger(EBusActions.class);
 
     /** The eBUS bridge */
@@ -68,9 +69,9 @@ public class EBusActions implements ThingActions {
      */
     public @Nullable EBusClient getEBusClient() {
 
-        EBusBridgeHandler handler = this.handler;
-        if (handler != null) {
-            EBusClientBridge clientBridge = handler.getLibClient();
+        EBusBridgeHandler tmpHandler = this.handler;
+        if (tmpHandler != null) {
+            EBusClientBridge clientBridge = tmpHandler.getLibClient();
             return clientBridge.getClient();
         }
 

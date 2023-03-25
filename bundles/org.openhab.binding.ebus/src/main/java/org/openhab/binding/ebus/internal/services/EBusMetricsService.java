@@ -43,6 +43,7 @@ import de.csdev.ebus.core.IEBusController;
 @NonNullByDefault
 public class EBusMetricsService {
 
+    @SuppressWarnings({"null"})
     private final Logger logger = LoggerFactory.getLogger(EBusMetricsService.class);
 
     @Nullable
@@ -70,38 +71,34 @@ public class EBusMetricsService {
 
         deactivate();
 
-        metricsRefreshSchedule = bridge.getBindingScheduler().scheduleWithFixedDelay(new Runnable() {
+        metricsRefreshSchedule = bridge.getBindingScheduler().scheduleWithFixedDelay(() -> {
+            try {
+                de.csdev.ebus.service.metrics.EBusMetricsService metricsService = getBackendClient()
+                        .getMetricsService();
+                IEBusController controller = getBackendClient().getController();
 
-            @Override
-            public void run() {
-                try {
-                    de.csdev.ebus.service.metrics.EBusMetricsService metricsService = getBackendClient()
-                            .getMetricsService();
-                    IEBusController controller = getBackendClient().getController();
+                ThingUID thingUID = bridge.getThing().getUID();
 
-                    ThingUID thingUID = bridge.getThing().getUID();
+                bridge.updateState(new ChannelUID(thingUID, METRICS, RECEIVED_TELEGRAMS),
+                        new DecimalType(metricsService.getReceived()));
+                bridge.updateState(new ChannelUID(thingUID, METRICS, FAILED_TELEGRAMS),
+                        new DecimalType(metricsService.getFailed()));
+                bridge.updateState(new ChannelUID(thingUID, METRICS, RESOLVED_TELEGRAMS),
+                        new DecimalType(metricsService.getResolved()));
+                bridge.updateState(new ChannelUID(thingUID, METRICS, UNRESOLVED_TELEGRAMS),
+                        new DecimalType(metricsService.getUnresolved()));
+                bridge.updateState(new ChannelUID(thingUID, METRICS, FAILED_RATIO),
+                        new DecimalType(metricsService.getFailureRatio()));
+                bridge.updateState(new ChannelUID(thingUID, METRICS, UNRESOLVED_RATIO),
+                        new DecimalType(metricsService.getUnresolvedRatio()));
 
-                    bridge.updateState(new ChannelUID(thingUID, METRICS, RECEIVED_TELEGRAMS),
-                            new DecimalType(metricsService.getReceived()));
-                    bridge.updateState(new ChannelUID(thingUID, METRICS, FAILED_TELEGRAMS),
-                            new DecimalType(metricsService.getFailed()));
-                    bridge.updateState(new ChannelUID(thingUID, METRICS, RESOLVED_TELEGRAMS),
-                            new DecimalType(metricsService.getResolved()));
-                    bridge.updateState(new ChannelUID(thingUID, METRICS, UNRESOLVED_TELEGRAMS),
-                            new DecimalType(metricsService.getUnresolved()));
-                    bridge.updateState(new ChannelUID(thingUID, METRICS, FAILED_RATIO),
-                            new DecimalType(metricsService.getFailureRatio()));
-                    bridge.updateState(new ChannelUID(thingUID, METRICS, UNRESOLVED_RATIO),
-                            new DecimalType(metricsService.getUnresolvedRatio()));
-
-                    if (controller != null) {
-                        bridge.updateState(new ChannelUID(thingUID, METRICS, SEND_RECEIVE_ROUNDTRIP_TIME),
-                                new DecimalType((int) controller.getLastSendReceiveRoundtripTime() / 1000));
-                    }
-
-                } catch (Exception e) {
-                    logger.error("error!", e);
+                if (controller != null) {
+                    bridge.updateState(new ChannelUID(thingUID, METRICS, SEND_RECEIVE_ROUNDTRIP_TIME),
+                            new DecimalType((int) controller.getLastSendReceiveRoundtripTime() / 1000));
                 }
+
+            } catch (Exception e) {
+                logger.error("error!", e);
             }
         }, 0, 30, TimeUnit.SECONDS);
     }

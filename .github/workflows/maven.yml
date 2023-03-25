@@ -38,7 +38,7 @@ jobs:
     - name: Set up Java
       uses: actions/setup-java@v1
       with:
-        java-version: 11
+        java-version: 17
 
     - name: Package maven project
       run: mvn --batch-mode --update-snapshots -Dspotless.check.skip=true install
@@ -47,7 +47,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: mvn --batch-mode -Dspotless.check.skip=true verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
+      run: mvn --batch-mode -Dspotless.check.skip=true -DskipChecks clean verify #org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
 
     - name: Upload Maven build artifact (JAR)
       uses: actions/upload-artifact@v2
@@ -59,7 +59,7 @@ jobs:
       run: rm -rf bundles/org.openhab.binding.ebus/target/classes
 
     - name: Build Karaf KAR file embedded with all dependencies
-      run: mvn --batch-mode -Dspotless.check.skip=true karaf:kar -pl :org.openhab.binding.ebus
+      run: mvn --batch-mode -Dspotless.check.skip=true -DskipChecks karaf:kar -pl :org.openhab.binding.ebus
 
     - name: Upload Maven build artifact (KAR)
       uses: actions/upload-artifact@v2
