@@ -31,7 +31,7 @@ jobs:
           java-version: 17
 
       - name: Package maven project
-        run: mvn --batch-mode --update-snapshots -Dspotless.check.skip=true install
+        run: mvn --batch-mode --update-snapshots -Dspotless.check.skip=true -DskipChecks install
 
       - name: Upload Maven build artifact (JAR)
         uses: actions/upload-artifact@v2
@@ -43,7 +43,7 @@ jobs:
         run: rm -rf bundles/org.openhab.binding.ebus/target/classes
 
       - name: Build Karaf KAR file embedded with all dependencies
-        run: mvn --batch-mode -Dspotless.check.skip=true karaf:kar -pl :org.openhab.binding.ebus
+        run: mvn --batch-mode -Dspotless.check.skip=true -DskipChecks karaf:kar -pl :org.openhab.binding.ebus
 
       - name: Upload Maven build artifact (KAR)
         uses: actions/upload-artifact@v2

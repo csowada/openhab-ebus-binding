@@ -27,6 +27,7 @@ import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.TimeZone;
@@ -36,7 +37,6 @@ import java.util.concurrent.TimeUnit;
 import javax.measure.quantity.Temperature;
 
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -86,13 +86,14 @@ import de.csdev.ebus.utils.EBusUtils;
 @NonNullByDefault
 public class EBusHandler extends BaseThingHandler {
 
+    @SuppressWarnings({"null"})
     private final Logger logger = LoggerFactory.getLogger(EBusHandler.class);
 
-    private Map<ChannelUID, ByteBuffer> channelPollings = new HashMap<>();
+    private Map<ChannelUID, @Nullable ByteBuffer> channelPollings = new HashMap<>();
 
     private Random random = new Random(12);
 
-    private Map<ByteBuffer, ScheduledFuture<?>> uniqueTelegramPollings = new HashMap<>();
+    private Map<ByteBuffer, @Nullable ScheduledFuture<?>> uniqueTelegramPollings = new HashMap<>();
 
     /**
      * @param thing
@@ -178,9 +179,13 @@ public class EBusHandler extends BaseThingHandler {
     private void disposeAllChannelPollings() {
         synchronized(uniqueTelegramPollings) {
             // Cancel all polling jobs
-            for (Entry<ByteBuffer, ScheduledFuture<?>> entry : uniqueTelegramPollings.entrySet()) {
+            for (Entry<ByteBuffer, @Nullable ScheduledFuture<?>> entry : uniqueTelegramPollings.entrySet()) {
                 logger.debug("Remove polling job for {}", EBusUtils.toHexDumpString(entry.getKey()));
-                entry.getValue().cancel(true);
+
+                ScheduledFuture<?> value = entry.getValue();
+                if (value != null) {
+                    value.cancel(true);
+                }
             }
             uniqueTelegramPollings.clear();
         }
@@ -262,7 +267,9 @@ public class EBusHandler extends BaseThingHandler {
             if (!channelPollings.containsValue(telegram)) {
                 // remove last
                 ScheduledFuture<?> future = uniqueTelegramPollings.remove(telegram);
-                future.cancel(true);
+                if (future != null) {
+                    future.cancel(true);
+                }
 
                 logger.debug("Cancel polling job for \"{}\" ...", channelUID);
             } else {
@@ -281,7 +288,7 @@ public class EBusHandler extends BaseThingHandler {
         final Configuration thingConfiguration = thing.getConfiguration();
         final Configuration configuration = channel.getConfiguration();
 
-        final String valueName = properties.get(VALUE_NAME);
+        @Nullable final String valueName = properties.get(VALUE_NAME);
 
         // a valid value for polling
         long pollingPeriod = 0;
@@ -445,7 +452,7 @@ public class EBusHandler extends BaseThingHandler {
             return;
         }
 
-        final String commandId = channel.getProperties().get(COMMAND);
+        @Nullable final String commandId = channel.getProperties().get(COMMAND);
         
         if (StringUtils.isEmpty(commandId)) {
             logger.warn("Invalid channel uid {}", channelUID);
@@ -518,7 +525,7 @@ public class EBusHandler extends BaseThingHandler {
         EBusClientBridge libClient = getLibClient();
 
         Map<String, String> properties = thing.getProperties();
-        String oldHash = properties.get("collectionHash");
+        @Nullable String oldHash = properties.get("collectionHash");
         String collectionId = thing.getThingTypeUID().getId();
         IEBusCommandCollection collection = libClient.getClient().getCommandCollection(collectionId);
 
@@ -636,7 +643,7 @@ public class EBusHandler extends BaseThingHandler {
             Channel newChannel = thing.getChannel(oldChannel.getUID().getId());
             logger.info("thingUpdated {}", oldChannel.getUID());
             if (newChannel != null
-                    && !ObjectUtils.equals(oldChannel.getConfiguration(), newChannel.getConfiguration())) {
+                    && !Objects.equals(oldChannel.getConfiguration(), newChannel.getConfiguration())) {
                 logger.debug("Configuration for channel {} changed from {} to {} ...", oldChannel.getUID(),
                         oldChannel.getConfiguration(), newChannel.getConfiguration());
                 updateChannelPolling(oldChannel.getUID());

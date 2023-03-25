@@ -94,6 +94,7 @@ import de.csdev.ebus.configuration.EBusConfigurationReaderExt;
         ChannelGroupTypeProvider.class }, configurationPid = BINDING_PID, immediate = true)
 public class EBusTypeProviderImpl extends EBusTypeProviderBase {
 
+    @SuppressWarnings({"null"})
     private final Logger logger = LoggerFactory.getLogger(EBusTypeProviderImpl.class);
 
     private @Nullable EBusCommandRegistry commandRegistry;

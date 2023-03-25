@@ -98,7 +98,7 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
      * @return
      */
     private Collection<EBusBridgeHandler> getAllEBusBridgeHandlers() {
-        Collection<EBusBridgeHandler> result = new ArrayList<EBusBridgeHandler>();
+        Collection<EBusBridgeHandler> result = new ArrayList<>();
         ThingRegistry thingRegistry = this.thingRegistry;
 
         if (thingRegistry != null) {
@@ -301,8 +301,8 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
                 StringBuilder sb = new StringBuilder();
                 sb.append("Refresh all available eBUS Things ...\n");
                 sb.append("\n");
-                sb.append(String.format("%-40s | %-40s | %-10s\n", "Thing UID", "Label", "Refreshed ?"));
-                sb.append(String.format("%-40s-+-%-40s-+-%-10s\n", StringUtils.repeat("-", 40),
+                sb.append(String.format("%-40s | %-40s | %-10s%n", "Thing UID", "Label", "Refreshed ?"));
+                sb.append(String.format("%-40s-+-%-40s-+-%-10s%n", StringUtils.repeat("-", 40),
                         StringUtils.repeat("-", 40), StringUtils.repeat("-", 10)));
 
                 for (EBusBridgeHandler bridgeHandler : bridgeHandlers) {
@@ -313,7 +313,7 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
                             EBusHandler handler = (EBusHandler) thing.getHandler();
                             if (handler != null) {
                                 boolean status = handler.refreshThingConfiguration();
-                                sb.append(String.format("%-40s | %-40s | %-10s\n", thing.getUID(), thing.getLabel(),
+                                sb.append(String.format("%-40s | %-40s | %-10s%n", thing.getUID(), thing.getLabel(),
                                         status));
                             }
                         }
@@ -321,12 +321,7 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
                 }
                 console.print(sb.toString());
             }
-        } catch (EBusControllerException e) {
-            String message = e.getMessage();
-            if(message != null) {
-                console.print(message);
-            }
-        } catch (EBusTypeProviderException e) {
+        } catch (EBusControllerException | EBusTypeProviderException e) {
             String message = e.getMessage();
             if(message != null) {
                 console.print(message);
