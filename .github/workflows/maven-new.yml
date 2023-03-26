@@ -18,7 +18,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '17'
-          distribution: 'temurin'
+          distribution: 'zulu'
           cache: maven
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  
