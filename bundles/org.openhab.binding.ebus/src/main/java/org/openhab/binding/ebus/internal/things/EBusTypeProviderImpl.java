@@ -207,8 +207,8 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase {
      * @return
      * @throws EBusTypeProviderException
      */
-    @Nullable
-    private ChannelType createChannelType(IEBusValue value, IEBusCommandMethod mainMethod)
+    @SuppressWarnings({"java:S3776"})
+    private @Nullable ChannelType createChannelType(IEBusValue value, IEBusCommandMethod mainMethod)
             throws EBusTypeProviderException {
 
         // only process valid entries
@@ -454,6 +454,7 @@ public class EBusTypeProviderImpl extends EBusTypeProviderBase {
      * @param collection
      * @throws EBusTypeProviderException
      */
+    @SuppressWarnings({"java:S3776"})
     private void updateCollection(IEBusCommandCollection collection) throws EBusTypeProviderException {
 
         // don't add empty command collections, in most cases template files

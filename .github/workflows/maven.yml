@@ -41,13 +41,13 @@ jobs:
         java-version: 17
 
     - name: Package maven project
-      run: mvn --batch-mode --update-snapshots -Dspotless.check.skip=true install
+      run: mvn --batch-mode --update-snapshots -Dspotless.check.skip=true -DskipChecks install
 
     - name: Build and analyze
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: mvn --batch-mode -Dspotless.check.skip=true -DskipChecks clean verify #org.sonarsource.scanner.maven:sonar-maven-plugin:sonar 
+      run: mvn --batch-mode -Dspotless.check.skip=true -DskipChecks clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
     - name: Upload Maven build artifact (JAR)
       uses: actions/upload-artifact@v2

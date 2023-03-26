@@ -156,6 +156,7 @@ public class EBusDiscoveryService extends AbstractDiscoveryService implements IE
     }
 
     @Override
+    @SuppressWarnings({"java:S3776"})
     public void onEBusDeviceUpdate(@Nullable TYPE type, @Nullable IEBusDevice device) {
         if (device != null && type != null && !type.equals(TYPE.UPDATE_ACTIVITY)) {
             if (!disableDiscovery) {

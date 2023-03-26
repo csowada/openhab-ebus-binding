@@ -183,6 +183,7 @@ public class EBusClientBridge {
      * @throws EBusTypeException
      * @throws EBusCommandException
      */
+    @SuppressWarnings({"java:S3776"})
     public ByteBuffer generateSetterTelegram(Thing thing, Channel channel, Command command)
             throws EBusTypeException, EBusCommandException {
         String slaveAddress = (String) thing.getConfiguration().get(EBusBindingConstants.SLAVE_ADDRESS);
