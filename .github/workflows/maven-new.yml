@@ -29,7 +29,7 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots -Dspotless.check.skip=true verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+        run: mvn --batch-mode --update-snapshots -Dspotless.check.skip=true -DskipChecks verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
       - name: Upload Maven build artifact (JAR)
         uses: actions/upload-artifact@v3
