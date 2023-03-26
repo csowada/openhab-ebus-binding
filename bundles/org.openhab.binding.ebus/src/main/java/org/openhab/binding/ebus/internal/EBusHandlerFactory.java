@@ -69,7 +69,6 @@ public class EBusHandlerFactory extends BaseThingHandlerFactory {
     @Reference
     private SerialPortManager serialPortManager;
 
-    @SuppressWarnings({"null"})
     public SerialPortManager getSerialPortManager() {
         return Objects.requireNonNull(serialPortManager, "serialPortManager");
     }

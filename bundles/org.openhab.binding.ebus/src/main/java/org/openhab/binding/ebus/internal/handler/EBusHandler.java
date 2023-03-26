@@ -198,6 +198,7 @@ public class EBusHandler extends BaseThingHandler {
      * @param channel
      * @param value
      */
+    @SuppressWarnings({"java:S3776"})
     private void assignValueToChannel(Channel channel, @Nullable Object value) {
 
         String acceptedItemType = channel.getAcceptedItemType();
@@ -430,6 +431,7 @@ public class EBusHandler extends BaseThingHandler {
      *
      * @param channelUID
      */
+    @SuppressWarnings({"java:S3776"})
     private void initializeChannelPolling(ChannelUID channelUID) {
 
         // only for linked channels
@@ -574,6 +576,7 @@ public class EBusHandler extends BaseThingHandler {
      * @param commandMethod
      * @return
      */
+    @SuppressWarnings({"java:S3776"})
     public boolean supportsTelegram(byte[] receivedData, IEBusCommandMethod commandMethod) {
 
         final String collectionId = thing.getThingTypeUID().getId();

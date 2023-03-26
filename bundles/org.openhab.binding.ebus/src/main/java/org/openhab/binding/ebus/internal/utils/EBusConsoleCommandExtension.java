@@ -162,6 +162,7 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
      * @param console
      * @throws EBusControllerException
      */
+    @SuppressWarnings({"java:S3776"})
     private void list(String[] args, Console console) throws EBusControllerException {
         console.println(String.format("%-40s | %-40s | %-10s", "Thing UID", "Label", "Type"));
         console.println(String.format("%-40s-+-%-40s-+-%-10s", StringUtils.repeat("-", 40), StringUtils.repeat("-", 40),
@@ -244,6 +245,7 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
     }
 
     @Override
+    @SuppressWarnings({"java:S3776"})
     public void execute(String[] args, Console console) {
         try {
             if (args.length == 0) {

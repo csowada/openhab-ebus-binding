@@ -117,6 +117,7 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
      * @see org.openhab.core.thing.binding.BaseThingHandler#initialize()
      */
     @Override
+    @SuppressWarnings({"java:S3776"})
     public void initialize() {
 
         logger.trace("EBusBridgeHandler.initialize()");
