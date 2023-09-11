@@ -1,12 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-## Unreleased 
+## Unreleased
+
+## [4.0.18] - 2023-09-11 (only snapshot release)
 ### Fixed
 - Update binding feature to openHAB 4.0.2
 - Remove version dependency in feature.xml
 
-## [4.0.17] - 2023-08-77 (only snapshot release)
+## [4.0.17] - 2023-08-27 (only snapshot release)
 ### Fixed
 - Compile for openHAB 4.0 and Java 17 only
 - Fix Binding configuration for custom JSON files

@@ -7,20 +7,12 @@
   <parent>
     <groupId>org.openhab.addons.bundles</groupId>
     <artifactId>org.openhab.addons.reactor.bundles</artifactId>
-    <version>4.0.18-SNAPSHOT</version>
+    <version>4.0.18</version>
   </parent>
 
   <properties>
     <ebus.core.version>1.1.11</ebus.core.version>
     <ebus.config.version>1.1.8</ebus.config.version>
-
-    <!--
-      <ohc.version>4.0.1</ohc.version>
-    <karaf.version>4.4.3</karaf.version>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
-    -->
-
   </properties>
 
   <artifactId>org.openhab.binding.ebus</artifactId>
