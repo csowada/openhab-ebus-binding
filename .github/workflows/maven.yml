@@ -56,7 +56,7 @@ jobs:
         path: bundles/org.openhab.binding.ebus/target/*.jar
 
     - name: Remove classes folder to not include it into KAR
-      run: rm -rf bundles/org.openhab.binding.ebus/target/classes
+      run: rm -rfv bundles/org.openhab.binding.ebus/target/classes
 
     - name: Build Karaf KAR file embedded with all dependencies
       run: mvn --batch-mode -Dspotless.check.skip=true -DskipChecks karaf:kar -pl :org.openhab.binding.ebus

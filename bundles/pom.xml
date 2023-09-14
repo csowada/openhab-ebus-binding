@@ -7,7 +7,7 @@
   <parent>
     <groupId>org.openhab.addons</groupId>
     <artifactId>org.openhab.addons.reactor</artifactId>
-    <version>4.0.18</version>
+    <version>4.0.19-SNAPSHOT</version>
   </parent>
 
   <groupId>org.openhab.addons.bundles</groupId>
@@ -31,6 +31,7 @@
       <groupId>org.lastnpe.eea</groupId>
       <artifactId>eea-all</artifactId>
       <version>${eea.version}</version>
+      <scope>provided</scope>
     </dependency>
     <!-- openHAB core -->
     <dependency>

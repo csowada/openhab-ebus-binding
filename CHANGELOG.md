@@ -3,7 +3,7 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-## [4.0.18] - 2023-09-11 (only snapshot release)
+## [4.0.18] - 2023-09-11
 ### Fixed
 - Update binding feature to openHAB 4.0.2
 - Remove version dependency in feature.xml
