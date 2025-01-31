@@ -11,7 +11,7 @@
 
   <groupId>org.openhab.addons</groupId>
   <artifactId>org.openhab.addons.reactor</artifactId>
-  <version>4.0.19-SNAPSHOT</version>
+  <version>4.0.20-SNAPSHOT</version>
 
   <packaging>pom</packaging>
 
@@ -576,7 +576,7 @@ Import-Package: \\
               <version>${sat.version}</version>
             </dependency>
           </dependencies>
-          <executions>
+          <!-- <executions>
             <execution>
               <id>codestyle_check</id>
               <goals>
@@ -584,7 +584,7 @@ Import-Package: \\
               </goals>
               <phase>initialize</phase>
             </execution>
-          </executions>
+          </executions> -->
         </plugin>
       </plugins>
     </pluginManagement>

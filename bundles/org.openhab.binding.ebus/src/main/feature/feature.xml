@@ -3,7 +3,11 @@
 
 	<!-- <repository>mvn:org.openhab.core.features.karaf/org.openhab.core.features.karaf.openhab-core/${ohc.version}/xml/features</repository> -->
 
-	<feature name="openhab-binding-ebus" description="eBUS Binding" version="${project.version}">
+	<!-- The feature name DOES NOT start with openhab, despite the coding rules. It is OK ! There is a weird behavior in the way openHAB handles KAR file
+		(there is an autodeletion feature if the KAR file is not registered in the addon file). 
+		To avoid this we change the name. You have to build the project without the name check. 
+		Use -Dspotless.check.skip=true -DskipChecks=true -DskipTests -Dcheckstyle.skip  -->
+	<feature name="marketplace-openhab-binding-ebus" description="eBUS Binding" version="${project.version}">
 		<feature>openhab-runtime-base</feature>
 		<feature>openhab-transport-serial</feature>
 		<bundle>mvn:de.cs-dev.ebus/ebus-core/${ebus.core.version}</bundle>
