@@ -3,7 +3,21 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-## [4.0.18] - 2023-09-11 (only snapshot release)
+## [4.0.20] - 2025-01-31
+### Changed
+- Update eBUS core to version 1.1.13
+  - Revert change from v1.1.9 to encode master data again
+  - Update project dependencies
+- Update eBUS configuration to version 1.1.9
+  - Fix Wolf CWL 300/400 issue for setter fan_stepX
+  - Add Cooling State to controller.d_values_rc2
+- Update project pipelines, license header to 2025
+
+## [4.0.19] - 2023-09-14
+### Fixed
+- Fix KAR builds for openHAB 4.0.3
+
+## [4.0.18] - 2023-09-11
 ### Fixed
 - Update binding feature to openHAB 4.0.2
 - Remove version dependency in feature.xml
