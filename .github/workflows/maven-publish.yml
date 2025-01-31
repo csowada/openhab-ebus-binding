@@ -12,6 +12,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
     steps:
       - uses: actions/checkout@v2
@@ -19,22 +22,23 @@ jobs:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
 
       - name: Cache Maven packages
-        uses: actions/cache@v2
+        uses: actions/cache@v4
         with:
           path: ~/.m2
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
 
       - name: Set up Java
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v4
         with:
           java-version: 17
+          distribution: temurin
+          cache: maven
 
       - name: Package maven project
         run: mvn --batch-mode --update-snapshots -Dspotless.check.skip=true -DskipChecks install
 
       - name: Upload Maven build artifact (JAR)
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: artifact-jar
           path: bundles/org.openhab.binding.ebus/target/*.jar
@@ -46,7 +50,7 @@ jobs:
         run: mvn --batch-mode -Dspotless.check.skip=true -DskipChecks karaf:kar -pl :org.openhab.binding.ebus
 
       - name: Upload Maven build artifact (KAR)
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: artifact-kar
           path: bundles/org.openhab.binding.ebus/target/*.kar
