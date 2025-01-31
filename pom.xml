@@ -11,7 +11,7 @@
 
   <groupId>org.openhab.addons</groupId>
   <artifactId>org.openhab.addons.reactor</artifactId>
-  <version>4.0.20-SNAPSHOT</version>
+  <version>4.0.20</version>
 
   <packaging>pom</packaging>
 
