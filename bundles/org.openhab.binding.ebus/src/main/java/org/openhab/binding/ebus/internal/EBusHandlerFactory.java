@@ -52,7 +52,6 @@ import de.csdev.ebus.core.EBusVersion;
 @Component(service = { ThingHandlerFactory.class }, immediate = true)
 public class EBusHandlerFactory extends BaseThingHandlerFactory {
 
-    @SuppressWarnings({"null"})
     private final Logger logger = LoggerFactory.getLogger(EBusHandlerFactory.class);
 
     private Map<ThingUID, @Nullable ServiceRegistration<?>> discoveryServiceRegs = new HashMap<>();

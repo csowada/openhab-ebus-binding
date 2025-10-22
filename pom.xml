@@ -11,7 +11,7 @@
 
   <groupId>org.openhab.addons</groupId>
   <artifactId>org.openhab.addons.reactor</artifactId>
-  <version>4.0.20</version>
+  <version>5.0.0-SNAPSHOT</version>
 
   <packaging>pom</packaging>
 
@@ -58,35 +58,29 @@
 		</repository>
 	</repositories>
 
-  <!-- <distributionManagement>
-    <repository>
-      <id>jfrog-release</id>
-      <url>${oh.repo.distBaseUrl}/libs-release-local</url>
-    </repository>
-    <snapshotRepository>
-      <id>jfrog</id>
-      <url>${oh.repo.snapshotBaseUrl}/libs-snapshot-local</url>
-    </snapshotRepository>
-  </distributionManagement> -->
-
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <oh.java.version>17</oh.java.version>
-    <maven.compiler.source>${oh.java.version}</maven.compiler.source>
-    <maven.compiler.target>${oh.java.version}</maven.compiler.target>
-    <maven.compiler.compilerVersion>${oh.java.version}</maven.compiler.compilerVersion>
+    <oh.java.version>21</oh.java.version>
+    <maven.compiler.release>${oh.java.version}</maven.compiler.release>
 
-    <ohc.version>4.0.2</ohc.version>
-    <bnd.version>6.4.0</bnd.version>
+    <ohc.version>5.0.0</ohc.version>
+    <bnd.version>7.1.0</bnd.version>
     <commons.net.version>3.9.0</commons.net.version>
-    <eea.version>2.2.1</eea.version>
-    <jackson.version>2.14.1</jackson.version>
-    <karaf.version>4.4.3</karaf.version>
-    <netty.version>4.1.92.Final</netty.version>
-    <okhttp.version>3.14.9</okhttp.version>
-    <sat.version>0.15.0</sat.version>
-    <spotless.version>2.37.0</spotless.version>
+    <eea.version>2.4.0</eea.version>
+    <jackson.version>2.19.2</jackson.version>
+    <jna.version>5.17.0</jna.version>
+    <karaf.version>4.4.8</karaf.version>
+    <mockito.version>5.19.0</mockito.version>
+    <netty.version>4.1.126.Final</netty.version>
+    <graalpy.version>24.2.1</graalpy.version>
+    <okhttp3.version>4.12.0</okhttp3.version>
+    <okio.version>3.9.0</okio.version>
+    <gson.version>2.13.1</gson.version>
+    <kotlin.version>1.9.23</kotlin.version>
+    <sat.version>0.17.0</sat.version>
+    <slf4j.version>2.0.12</slf4j.version>
+    <spotless.version>2.44.3</spotless.version>
     <!-- Eclipse Java formatter version 4.26+ does not check test files -->
     <spotless.eclipse.version>4.25</spotless.eclipse.version>
     <spotless.eclipse.wtp.version>4.21.0</spotless.eclipse.wtp.version>
@@ -121,8 +115,7 @@ Import-Package: \\
 -fixupmessages: \\
   'Unused Import-Package instructions';is:=ignore,\\
   'Unused Export-Package instructions';is:=ignore,\\
-  ${bnd.fixupmessages}]]>
-    </oh.bndDefaults>
+  ${bnd.fixupmessages}]]></oh.bndDefaults>
   </properties>
 
   <dependencyManagement>
@@ -301,20 +294,20 @@ Import-Package: \\
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-clean-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.5.0</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.10.1</version>
+          <version>3.14.1</version>
           <configuration>
             <compilerId>eclipse</compilerId>
-            <compilerArguments>
-              <annotationpath>CLASSPATH</annotationpath>
-              <classpath>${project.build.directory}/dependency</classpath>
-            </compilerArguments>
             <compilerArgs>
+              <arg>-annotationpath</arg>
+              <arg>CLASSPATH</arg>
+              <arg>-classpath</arg>
+              <arg>${project.build.directory}/dependency</arg>
               <arg>-err:+nullAnnot(org.eclipse.jdt.annotation.Nullable|org.eclipse.jdt.annotation.NonNull|org.eclipse.jdt.annotation.NonNullByDefault),+inheritNullAnnot,+nullAnnotConflict,-nullUncheckedConversion</arg>
               <arg>-warn:+null,+inheritNullAnnot,-nullUncheckedConversion,+nullAnnotRedundant,+nullDereference</arg>
               <arg>-nowarn:[${project.build.directory}/generated-sources]</arg>
@@ -331,56 +324,67 @@ Import-Package: \\
             <dependency>
               <groupId>org.eclipse.jdt</groupId>
               <artifactId>ecj</artifactId>
-              <version>3.30.0</version>
+              <version>3.43.0</version>
             </dependency>
           </dependencies>
+        </plugin>
+
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-deploy-plugin</artifactId>
+          <version>3.1.4</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-enforcer-plugin</artifactId>
-          <version>3.0.0-M2</version>
+          <version>3.6.2</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.2</version>
+          <version>3.1.4</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.0.2</version>
+          <version>3.4.2</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>3.2.0</version>
+          <version>3.12.0</version>
           <configuration>
+            <outputDirectory>${project.build.directory}/site</outputDirectory>
             <failOnError>!${quality.skip}</failOnError>
+            <tags>
+              <tag>
+                <name>apiNote</name>
+                <placement>a</placement>
+                <head>API note:</head>
+              </tag>
+              <tag>
+                <name>implNote</name>
+                <placement>a</placement>
+                <head>Implementation note:</head>
+              </tag>
+            </tags>
           </configuration>
-          <dependencies>
-            <!-- This newer version fixes issues with resolving tech.units:indriya packages -->
-            <dependency>
-              <groupId>org.codehaus.plexus</groupId>
-              <artifactId>plexus-java</artifactId>
-              <version>1.0.7</version>
-            </dependency>
-          </dependencies>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-plugin-plugin</artifactId>
-          <version>3.6.0</version>
+          <version>3.15.1</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>2.5.2</version>
+          <version>3.21.0</version>
           <configuration>
             <preparationGoals>clean install</preparationGoals>
           </configuration>
@@ -389,32 +393,35 @@ Import-Package: \\
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>3.0.2</version>
+          <version>3.3.1</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-site-plugin</artifactId>
-          <version>3.7.1</version>
+          <version>3.21.0</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-source-plugin</artifactId>
-          <version>3.0.1</version>
+          <version>3.3.1</version>
         </plugin>
 
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
-          <version>3.0.0-M7</version>
+          <version>3.5.4</version>
           <configuration>
-            <argLine>
-              --add-opens java.base/java.lang=ALL-UNNAMED
+            <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
               --add-opens java.base/java.util=ALL-UNNAMED
-            </argLine>
+              -javaagent:"${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar"
+              -Xshare:off</argLine>
             <systemPropertyVariables>
               <junit.jupiter.execution.timeout.default>15 m</junit.jupiter.execution.timeout.default>
+              <openhab.conf>${project.build.directory}/openhab/conf</openhab.conf>
+              <openhab.runtime>${project.build.directory}/openhab/runtime</openhab.runtime>
+              <openhab.userdata>${project.build.directory}/openhab/userdata</openhab.userdata>
             </systemPropertyVariables>
           </configuration>
         </plugin>
@@ -422,16 +429,15 @@ Import-Package: \\
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>build-helper-maven-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.6.1</version>
         </plugin>
 
         <plugin>
           <groupId>com.mycila</groupId>
           <artifactId>license-maven-plugin</artifactId>
-          <version>3.0</version>
+          <version>5.0.0</version>
           <configuration>
             <basedir>${basedir}</basedir>
-            <header>etc/header.txt</header>
             <quiet>false</quiet>
             <failIfMissing>true</failIfMissing>
             <strictCheck>true</strictCheck>
@@ -439,24 +445,29 @@ Import-Package: \\
             <mapping>
               <xml>xml-header-style</xml>
             </mapping>
-            <headerDefinitions>
-              <headerDefinition>etc/xml-header-style.xml</headerDefinition>
-            </headerDefinitions>
-            <includes>
-              <include>**/org/openhab/**/*.java</include>
-              <include>**/features/**/header.xml</include>
-            </includes>
-            <excludes>
-              <exclude>**/3rdparty/**</exclude>
-              <exclude>target/**</exclude>
-              <exclude>**/pom.xml</exclude>
-              <exclude>_*.java</exclude>
-            </excludes>
             <useDefaultExcludes>true</useDefaultExcludes>
             <properties>
               <year>2025</year>
             </properties>
             <encoding>UTF-8</encoding>
+            <licenseSets>
+              <licenseSet>
+                <header>licenses/epl-2.0/header.txt</header>
+                <headerDefinitions>
+                  <headerDefinition>licenses/epl-2.0/xml-header-style.xml</headerDefinition>
+                </headerDefinitions>
+                <includes>
+                  <include>**/org/openhab/**/*.java</include>
+                  <include>**/features/**/header.xml</include>
+                </includes>
+                <excludes>
+                  <exclude>**/3rdparty/**</exclude>
+                  <exclude>target/**</exclude>
+                  <exclude>**/pom.xml</exclude>
+                  <exclude>_*.java</exclude>
+                </excludes>
+              </licenseSet>
+            </licenseSets>
           </configuration>
           <executions>
             <execution>
@@ -512,6 +523,15 @@ Import-Package: \\
               </importOrder>
               <endWithNewline/>
             </java>
+            <pom>
+              <sortPom>
+                <expandEmptyElements>false</expandEmptyElements>
+                <indentAttribute>schemaLocation</indentAttribute>
+                <predefinedSortOrder>recommended_2008_06</predefinedSortOrder>
+                <sortDependencyExclusions/>
+                <sortDependencyManagement/>
+              </sortPom>
+            </pom>
             <formats>
               <format>
                 <!-- *.xml -->
@@ -532,7 +552,7 @@ Import-Package: \\
                   <files>
                     <file>openhab_wst_xml_files.prefs</file>
                   </files>
-                  <version>${spotless.eclipse.version}</version>
+                  <version>${spotless.eclipse.wtp.version}</version>
                 </eclipseWtp>
                 <trimTrailingWhitespace/>
                 <endWithNewline/>
@@ -547,22 +567,7 @@ Import-Package: \\
                   <files>
                     <file>openhab_wst_feature_file.prefs</file>
                   </files>
-                  <version>${spotless.eclipse.version}</version>
-                </eclipseWtp>
-                <trimTrailingWhitespace/>
-                <endWithNewline/>
-              </format>
-              <format>
-                <!-- pom.xml -->
-                <includes>
-                  <include>pom.xml</include>
-                </includes>
-                <eclipseWtp>
-                  <type>XML</type>
-                  <files>
-                    <file>openhab_wst_pom_file.prefs</file>
-                  </files>
-                  <version>${spotless.eclipse.version}</version>
+                  <version>${spotless.eclipse.wtp.version}</version>
                 </eclipseWtp>
                 <trimTrailingWhitespace/>
                 <endWithNewline/>
@@ -576,7 +581,7 @@ Import-Package: \\
               <version>${sat.version}</version>
             </dependency>
           </dependencies>
-          <!-- <executions>
+          <!--<executions>
             <execution>
               <id>codestyle_check</id>
               <goals>
@@ -584,7 +589,7 @@ Import-Package: \\
               </goals>
               <phase>initialize</phase>
             </execution>
-          </executions> -->
+          </executions>-->
         </plugin>
       </plugins>
     </pluginManagement>
@@ -623,8 +628,11 @@ Import-Package: \\
             </goals>
             <configuration>
               <rules>
+                <requireMavenVersion>
+                  <version>3.6.3</version>
+                </requireMavenVersion>
                 <requireJavaVersion>
-                  <version>[17.0,18.0)</version>
+                  <version>[21.0,22.0)</version>
                 </requireJavaVersion>
               </rules>
             </configuration>
@@ -733,6 +741,19 @@ Import-Package: \\
                         <execute/>
                       </action>
                     </pluginExecution>
+                    <pluginExecution>
+                      <pluginExecutionFilter>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>xml-maven-plugin</artifactId>
+                        <versionRange>[1.0.0,)</versionRange>
+                        <goals>
+                          <goal>validate</goal>
+                        </goals>
+                      </pluginExecutionFilter>
+                      <action>
+                        <ignore/>
+                      </action>
+                    </pluginExecution>
                   </pluginExecutions>
                 </lifecycleMappingMetadata>
               </configuration>
@@ -758,6 +779,15 @@ Import-Package: \\
               <executions>
                 <execution>
                   <id>sat-all</id>
+                  <phase>none</phase>
+                </execution>
+              </executions>
+            </plugin>
+            <plugin>
+              <groupId>org.codehaus.mojo</groupId>
+              <artifactId>xml-maven-plugin</artifactId>
+              <executions>
+                <execution>
                   <phase>none</phase>
                 </execution>
               </executions>
@@ -808,6 +838,13 @@ Import-Package: \\
           </plugins>
         </pluginManagement>
       </build>
+    </profile>
+    <profile>
+      <id>j17</id>
+      <properties>
+        <oh.java.version>17</oh.java.version>
+        <maven.compiler.release>${oh.java.version}</maven.compiler.release>
+      </properties>
     </profile>
   </profiles>
 

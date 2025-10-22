@@ -26,6 +26,6 @@ public class EBusAdvancedLogging extends EBusTelegramWriter {
      *
      */
     public EBusAdvancedLogging() {
-        super(new File(System.getProperty("openhab.logdir")));
+        super(new File(""+System.getProperty("openhab.logdir", "")));
     }
 }

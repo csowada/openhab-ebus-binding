@@ -13,6 +13,7 @@
 		<bundle>mvn:de.cs-dev.ebus/ebus-core/${ebus.core.version}</bundle>
 		<bundle>mvn:de.cs-dev.ebus/ebus-configuration/${ebus.config.version}</bundle>
 		<bundle>mvn:com.fazecast/jSerialComm/2.9.3</bundle>
+		<bundle>mvn:org.apache.commons/commons-lang3/3.18.0</bundle>
 		<bundle start-level="80">mvn:org.openhab.addons.bundles/org.openhab.binding.ebus/${project.version}</bundle>
 	</feature>
 </features>
