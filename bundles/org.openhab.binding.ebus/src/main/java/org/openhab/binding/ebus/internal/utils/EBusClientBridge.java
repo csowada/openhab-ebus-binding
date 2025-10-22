@@ -54,7 +54,6 @@ import de.csdev.ebus.utils.EBusUtils;
 @NonNullByDefault
 public class EBusClientBridge {
 
-    @SuppressWarnings({"null"})
     private final Logger logger = LoggerFactory.getLogger(EBusClientBridge.class);
 
     private @Nullable IEBusController controller;
@@ -100,12 +99,12 @@ public class EBusClientBridge {
 
         IEBusConnection conn = null;
 
-        if (StringUtils.equals(serialPort, "emulator")) {
+        if ("emulator".equals(serialPort)) {
             conn = new EBusEmulatorConnection();
 
         } else {
             try {
-                if (StringUtils.equals(type, DRIVER_JSERIALCOMM)) {
+                if (DRIVER_JSERIALCOMM.equals(type)) {
                     conn = new EBusJSerialCommConnection(serialPort);
                 } else {
                     conn = new EBusSerialNRJavaSerialConnection(serialPort);
@@ -187,7 +186,9 @@ public class EBusClientBridge {
 
         Map<String, String> properties = channel.getProperties();
 
+        @SuppressWarnings("null")
         String commandId = properties.getOrDefault(COMMAND, "");
+        @SuppressWarnings("null")
         String valueName = properties.get(VALUE_NAME);
 
         if (StringUtils.isEmpty(commandId) || StringUtils.isEmpty(valueName)) {

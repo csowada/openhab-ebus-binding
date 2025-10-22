@@ -249,14 +249,14 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
                 return;
             }
 
-            if (StringUtils.equals(args[0], SUBCMD_LIST)) {
+            if (SUBCMD_LIST.equals(args[0])) {
                 list(args, console);
                 return;
 
-            } else if (StringUtils.equals(args[0], SUBCMD_CHANNELS)) {
+            } else if (SUBCMD_CHANNELS.equals(args[0])) {
                 listChannels(args, console);
 
-            } else if (StringUtils.equals(args[0], SUBCMD_DEVICES)) {
+            } else if (SUBCMD_DEVICES.equals(args[0])) {
 
                 if (args.length == 2) {
                     devices(args, console, getBridge(args[1], console));
@@ -264,10 +264,10 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
                     devices(args, console, null);
                 }
 
-            } else if (StringUtils.equals(args[0], SUBCMD_RESOLVE)) {
+            } else if (SUBCMD_RESOLVE.equals(args[0])) {
                 resolve(EBusUtils.toByteArray(args[1]), console);
 
-            } else if (StringUtils.equals(args[0], SUBCMD_SEND)) {
+            } else if (SUBCMD_SEND.equals(args[0])) {
                 EBusBridgeHandler bridge = null;
 
                 if (args.length == 3) {
@@ -289,11 +289,11 @@ public class EBusConsoleCommandExtension implements ConsoleCommandExtension {
                         console.println("The send telegram is invalid! " + e.getMessage());
                     }
                 }
-            } else if (StringUtils.equals(args[0], SUBCMD_RELOAD)) {
+            } else if (SUBCMD_RELOAD.equals(args[0])) {
                 console.println("Reload all eBUS configurations ...");
                 typeProvider.reload();
 
-            } else if (StringUtils.equals(args[0], SUBCMD_UPDATE)) {
+            } else if (SUBCMD_UPDATE.equals(args[0])) {
                 Collection<EBusBridgeHandler> bridgeHandlers = getAllEBusBridgeHandlers();
 
                 StringBuilder sb = new StringBuilder();

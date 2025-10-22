@@ -81,14 +81,11 @@ public class EBusBindingConstants {
 
     // configuration uris
 
-    @SuppressWarnings({"null"})
     public static final URI CONFIG_DESCRIPTION_URI_NODE = URI.create("thing-type:" + BINDING_ID + ":nodeConfig");
 
-    @SuppressWarnings({"null"})
     public static final URI CONFIG_DESCRIPTION_URI_POLLING_CHANNEL = URI
             .create("channel-type:" + BINDING_ID + ":pollingChannel");
 
-    @SuppressWarnings({"null"})
     public static final URI CONFIG_DESCRIPTION_URI_NULL_CHANNEL = URI
             .create("channel-type:" + BINDING_ID + ":nullChannel");
 

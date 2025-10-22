@@ -49,7 +49,6 @@ import de.csdev.ebus.utils.EBusUtils;
 @NonNullByDefault
 public class EBusDiscoveryService extends AbstractDiscoveryService implements IEBusDeviceTableListener {
 
-    @SuppressWarnings({"null"})
     private final Logger logger = LoggerFactory.getLogger(EBusDiscoveryService.class);
 
     private IEBusBridgeHandler bridgeHandle;
@@ -103,7 +102,7 @@ public class EBusDiscoveryService extends AbstractDiscoveryService implements IE
 
         logger.debug("Stopping eBUS discovery service ...");
 
-        removeOlderResults(new Date().getTime());
+        removeOlderResults(new Date().toInstant());
 
         try {
             bridgeHandle.getLibClient().getClient().removeEBusDeviceTableListener(this);

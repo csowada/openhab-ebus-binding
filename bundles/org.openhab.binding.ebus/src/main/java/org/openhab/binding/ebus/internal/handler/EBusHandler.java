@@ -194,24 +194,23 @@ public class EBusHandler extends BaseThingHandler {
      * @param channel
      * @param value
      */
-    @SuppressWarnings({"java:S3776"})
     private void assignValueToChannel(Channel channel, @Nullable Object value) {
 
         String acceptedItemType = channel.getAcceptedItemType();
 
         State state = null;
 
-        if (StringUtils.equals(acceptedItemType, ITEM_TYPE_NUMBER)) {
+        if (ITEM_TYPE_NUMBER.equals(acceptedItemType)) {
             if (value instanceof BigDecimal) {
                 state = new DecimalType((BigDecimal) value);
             }
 
-        } else if (StringUtils.equals(acceptedItemType, ITEM_TYPE_TEMPERATURE)) {
+        } else if (ITEM_TYPE_TEMPERATURE.equals(acceptedItemType)) {
             if (value instanceof BigDecimal) {
                 state = new QuantityType<Temperature>((BigDecimal) value, SIUnits.CELSIUS);
             }
 
-        } else if (StringUtils.equals(acceptedItemType, ITEM_TYPE_STRING)) {
+        } else if (ITEM_TYPE_STRING.equals(acceptedItemType)) {
             if (value instanceof BigDecimal) {
                 state = new StringType(((BigDecimal) value).toString());
 
@@ -223,13 +222,13 @@ public class EBusHandler extends BaseThingHandler {
                 state = new StringType(EBusUtils.toHexDumpString((byte[]) value).toString());
             }
 
-        } else if (StringUtils.equals(acceptedItemType, ITEM_TYPE_SWITCH)) {
+        } else if (ITEM_TYPE_SWITCH.equals(acceptedItemType)) {
             if (value instanceof Boolean) {
                 boolean isOn = ((Boolean) value).booleanValue();
                 state = isOn ? OnOffType.ON : OnOffType.OFF;
             }
 
-        } else if (StringUtils.equals(acceptedItemType, ITEM_TYPE_DATETIME)) {
+        } else if (ITEM_TYPE_DATETIME.equals(acceptedItemType)) {
 
             if (value instanceof EBusDateTime) {
                 Calendar calendar = ((EBusDateTime) value).getCalendar();
@@ -332,7 +331,6 @@ public class EBusHandler extends BaseThingHandler {
             if(commandId != null) {
                 return libClient.generatePollingTelegram(collectionId, commandId, IEBusCommandMethod.Method.GET, thing);
             }
-            return null;
 
         } catch (EBusTypeException  e) {  
             logger.error("error!", e);
