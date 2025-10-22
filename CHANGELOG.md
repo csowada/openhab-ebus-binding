@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
+## [5.0.0] - 2025-10-22
+### Changed
+- Update to openHAB 5.x verision
+- Update eBUS core to version 1.1.14
+- Update eBUS configuration to version 1.1.10
+
 ## [4.0.20] - 2025-01-31
 ### Changed
 - Update eBUS core to version 1.1.13
