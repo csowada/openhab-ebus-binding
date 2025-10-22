@@ -39,7 +39,6 @@ import de.csdev.ebus.core.IEBusController;
 @NonNullByDefault
 public class EBusMetricsService {
 
-    @SuppressWarnings({"null"})
     private final Logger logger = LoggerFactory.getLogger(EBusMetricsService.class);
 
     @Nullable

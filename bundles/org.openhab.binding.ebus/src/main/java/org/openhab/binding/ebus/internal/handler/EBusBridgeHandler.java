@@ -59,10 +59,8 @@ import de.csdev.ebus.utils.EBusUtils;
 public class EBusBridgeHandler extends EBusBaseBridgeHandler
         implements IEBusParserListener, IEBusConnectorEventListener {
 
-            @SuppressWarnings({"null"})
     private final Logger logger = LoggerFactory.getLogger(EBusBridgeHandler.class);
     
-    @SuppressWarnings({"null"})
     public static final Set<ThingTypeUID> SUPPORTED_THING_TYPES = Collections
             .singleton(EBusBindingConstants.THING_TYPE_EBUS_BRIDGE);
 
@@ -75,7 +73,6 @@ public class EBusBridgeHandler extends EBusBaseBridgeHandler
     private EBusMetricsService metricsService = new EBusMetricsService(this);
 
     @Override
-    @SuppressWarnings({"null"})
     public Collection<Class<? extends ThingHandlerService>> getServices() {
         return Collections.singleton(EBusActions.class);
     }
